@@ -1,0 +1,15 @@
+GET  http://localhost:2000/getproducts HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre":"acetaminofen",
+    "unidades":"10",
+    "costo":"1000",
+    "laboratorio":"genfar",
+    "precio":"2000",
+    "id_usuario":1
+}
+
+
+
+
