@@ -29,6 +29,7 @@ CREATE TABLE deudas(
     nombre VARCHAR(250) NOT NULL,
     celular VARCHAR(250) NOT NULL,
     valor VARCHAR(250) NOT NULL,
+    fecha VARCHAR(250) NOT NULL,
     PRIMARY KEY (id_deuda),
     FOREIGN KEY (id_usuario)
     REFERENCES administrador(id_usuario)  
@@ -65,6 +66,7 @@ CREATE table creditos(
     nombre VARCHAR(250) NOT NULL, 
     celular VARCHAR(250) NOT NULL, 
     valor VARCHAR(250) NOT NULL, 
+    fecha VARCHAR(250) NOT NULL,
     PRIMARY KEY (id_credito),
     CONSTRAINT fk_id_usuario,
     FOREIGN key (id_usuario)
