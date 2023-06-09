@@ -32,7 +32,8 @@ CREATE TABLE deudas(
     fecha VARCHAR(250) NOT NULL,
     PRIMARY KEY (id_deuda),
     FOREIGN KEY (id_usuario)
-    REFERENCES administrador(id_usuario)  
+    REFERENCES administrador(id_usuario)
+    ON DELETE CASCADE;  
 );
 
 CREATE TABLE abonos(
@@ -70,7 +71,8 @@ CREATE table creditos(
     PRIMARY KEY (id_credito),
     CONSTRAINT fk_id_usuario,
     FOREIGN key (id_usuario)
-    REFERENCES administrador(id_usuario),
+    REFERENCES administrador(id_usuario)
+    ON DELETE CASCADE
 
    
 );

@@ -26,9 +26,30 @@ app.use("/getproducts", getProducts);
 
 const deleteProducto = require("./src/inventario/deleteProduct");
 app.use("/deleteproduct", deleteProducto);
+
 // rutas de creditos
-const addcustomers = require("./src/creditos/addclientes");
+const addcustomers = require("./src/creditos/addCustomers");
 app.use("/addcustomers", addcustomers);
+
+const getAllCustomers = require("./src/api-v1-routes/creditsRoutes");
+app.use("/getcustomers", getAllCustomers);
+//const getCustomers = require("./src/creditos/getCustomers");
+//app.use("/getcustomers", getCustomers);
+
+const addCredit = require("./src/creditos/addCredit");
+app.use("/addcredit", addCredit);
+
+const getCreditsRegistered = require("./src/creditos/getCreditsRegistered");
+app.use("/getrecord", getCreditsRegistered);
+
+const deleteCustomer = require("./src/creditos/deletedCustomer");
+app.use("/deletecustomer", deleteCustomer);
+
+const addSubtractRecord = require("./src/creditos/addSubtractRecord");
+app.use("/subtractrecord", addSubtractRecord);
+
+const editCustomer = require("./src/creditos/aditCustomer");
+app.use("/editcustomer", editCustomer);
 // rutas de deudas
 // rutas de metrica
 // PUERTO

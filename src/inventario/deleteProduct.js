@@ -4,7 +4,6 @@ const deleteProducto = require("express").Router();
 
 deleteProducto.delete("/:nombre", (req, res) => {
   const nombre = req.params.nombre;
-  console.log(nombre);
   conexion.query("DELETE FROM productos WHERE nombre =?", [nombre], async (err, row) => {
     if (err) {
       res.json({
