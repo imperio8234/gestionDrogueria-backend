@@ -1,3 +1,4 @@
+
 GET  http://localhost:2000/getproducts HTTP/1.1
 Content-Type: application/json
 
@@ -11,5 +12,48 @@ Content-Type: application/json
 }
 
 
+########
+
+GET http://localhost:2000/api/v1/credits HTTP/1.1
+Content-Type: application/json
+
+####
+
+POST http://localhost:2000/createcustomers HTTP/1.1
+Content-Type: application/json
 
 
+{
+    "idUsuario":"1",
+    "nombre" :"alberto",
+    "phoneNumber": 1231231423, 
+    "date": "jun/2/2020 "
+}
+
+####
+
+DELETE http://localhost:2000/api/v1/credits/11 HTTP/1.1
+Content-Type: application/json
+
+
+####    record credits
+
+GET  http://localhost:2000/api/v1/addcredit-record/11 HTTP/1.1
+Content-Type: application/json
+
+####
+
+DELETE http://localhost:2000/api/v1/addcredit-record/1 HTTP/1.1
+Content-Type: application/json
+
+###
+PUT  http://localhost:2000/api/v1/addcredit-record HTTP/1.1
+Content-Type: application/json
+
+
+{
+    "fecha": "1/2/2023 hora 5:50",
+    "idRecord": 2,
+    "producto": "pera",
+    "valor": "20000"
+}

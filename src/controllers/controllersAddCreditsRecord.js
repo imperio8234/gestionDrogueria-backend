@@ -1,15 +1,15 @@
-const { GetAllCustomersDB, CreateCustomersDB, UdateCustomersDB, DeleteCustomersDB } = require("../services/creditsServies");
+const { GetAllRecordDB, CreateRecordDB, UdateRecordDB, DeleteRecordDB } = require("../services/addCreditsRecordServices");
 
-const CreateCustomers = (req, res) => {
-  const { idUsuario, nombre, phoneNumber, date } = req.body;
-  const customer = {
-    idUsuario,
-    nombre,
-    phoneNumber,
-    date
+const CreateRecord = (req, res) => {
+  const { idCredito, fecha, producto, valor } = req.body;
+  const record = {
+    idCredito,
+    fecha,
+    producto,
+    valor
   };
 
-  CreateCustomersDB(customer)
+  CreateRecordDB(record)
     .then(result => {
       if (result) {
         res.json({
@@ -18,7 +18,7 @@ const CreateCustomers = (req, res) => {
         });
       } else {
         res.json({
-          message: "el cliente ya esta registrado",
+          message: "error al guardar",
           success: false
         });
       }
@@ -32,17 +32,18 @@ const CreateCustomers = (req, res) => {
       }
     });
 };
-const GetCustomers = (req, res) => {
-  GetAllCustomersDB()
+const GetRecord = (req, res) => {
+  const idCredit = req.params.id;
+  GetAllRecordDB(idCredit)
     .then(result => {
-      if (result.length >= 0) {
+      if (!result.length <= 0) {
         res.json({
           success: true,
           data: result
         });
       } else {
         res.json({
-          message: "no hay clentes registrados",
+          message: "no hay registros",
           success: false
         });
       }
@@ -57,9 +58,9 @@ const GetCustomers = (req, res) => {
     });
 };
 
-const DeletCustomers = (req, res) => {
-  const idCustomer = req.params.idcustomer;
-  DeleteCustomersDB(idCustomer).then(e => {
+const DeletRecord = (req, res) => {
+  const idRecord = req.params.id;
+  DeleteRecordDB(idRecord).then(e => {
     if (e) {
       res.json({
         success: true,
@@ -70,26 +71,27 @@ const DeletCustomers = (req, res) => {
     if (err) {
       res.json({
         success: false,
-        message: "aun hay registros"
+        message: "error al eliminar",
+        error: err
       });
     }
   });
 };
 
-const UpdateCustomers = (req, res) => {
-  const { nombre, idCredito, fecha, celular } = req.body;
+const UpdateRecord = (req, res) => {
+  const { fecha, idRecord, producto, valor } = req.body;
 
-  const updateCustomer = {
-    nombre,
-    idCredito,
+  const updateRecord = {
     fecha,
-    celular
+    idRecord,
+    producto,
+    valor
   };
-  UdateCustomersDB(updateCustomer)
+  UdateRecordDB(updateRecord)
     .then(result => {
       if (result) {
         res.json({
-          message: "se alcualizo correctamente",
+          message: "se actualizo  correctamente",
           success: true
         });
       }
@@ -105,9 +107,9 @@ const UpdateCustomers = (req, res) => {
 
 module.exports = {
 
-  GetCustomers,
-  DeletCustomers,
-  UpdateCustomers,
-  CreateCustomers
+  GetRecord,
+  DeletRecord,
+  UpdateRecord,
+  CreateRecord
 
 };
