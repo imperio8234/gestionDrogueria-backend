@@ -1,15 +1,15 @@
-const { GetAllRecordDB, CreateRecordDB, UdateRecordDB, DeleteRecordDB } = require("../services/addCreditsRecordServices");
+const { GetAllDeudaDB, CreateDeudaDB, UdateDeudaDB, DeleteDeudaDB } = require("../services/servicesAddDeudaRecord");
 
-const CreateRecord = (req, res) => {
-  const { idCredito, fecha, producto, valor } = req.body;
-  const record = {
-    idCredito,
+const CreateDeuda = (req, res) => {
+  const { idDeuda, fecha, producto, valor } = req.body;
+  const Deuda = {
+    idDeuda,
     fecha,
     producto,
     valor
   };
 
-  CreateRecordDB(record)
+  CreateDeudaDB(Deuda)
     .then(result => {
       if (result) {
         res.json({
@@ -32,12 +32,12 @@ const CreateRecord = (req, res) => {
       }
     });
 };
-const GetRecord = (req, res) => {
-  const idCredit = req.params.id;
-  const page = req.params.page;
-  GetAllRecordDB(idCredit, page)
+const GetDeuda = (req, res) => {
+  const idDeuda = req.params.id;
+  const pages = req.params.page;
+  GetAllDeudaDB(idDeuda, pages)
     .then(result => {
-      if (!result.length <= 0) {
+      if (!result.data.length <= 0) {
         res.json({
           success: true,
           data: result
@@ -59,9 +59,9 @@ const GetRecord = (req, res) => {
     });
 };
 
-const DeletRecord = (req, res) => {
-  const idRecord = req.params.id;
-  DeleteRecordDB(idRecord).then(e => {
+const DeletDeuda = (req, res) => {
+  const idDeuda = req.params.id;
+  DeleteDeudaDB(idDeuda).then(e => {
     if (e) {
       res.json({
         success: true,
@@ -79,16 +79,16 @@ const DeletRecord = (req, res) => {
   });
 };
 
-const UpdateRecord = (req, res) => {
-  const { fecha, idRecord, producto, valor } = req.body;
+const UpdateDeuda = (req, res) => {
+  const { fecha, idDeuda, producto, valor } = req.body;
 
-  const updateRecord = {
+  const updateDeuda = {
     fecha,
-    idRecord,
+    idDeuda,
     producto,
     valor
   };
-  UdateRecordDB(updateRecord)
+  UdateDeudaDB(updateDeuda)
     .then(result => {
       if (result) {
         res.json({
@@ -108,9 +108,9 @@ const UpdateRecord = (req, res) => {
 
 module.exports = {
 
-  GetRecord,
-  DeletRecord,
-  UpdateRecord,
-  CreateRecord
+  GetDeuda,
+  DeletDeuda,
+  UpdateDeuda,
+  CreateDeuda
 
 };

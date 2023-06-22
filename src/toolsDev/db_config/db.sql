@@ -8,6 +8,9 @@ CREATE TABLE administrador(
     email VARCHAR(250) NOT NULL,
     celular VARCHAR(250) NOT NULL,
     contraseña VARCHAR(250) NOT NULL,
+    activo BOOLEAN DEFAULT FALSE,
+    fecha VARCHAR(500),
+    clave INT
     PRIMARY KEY (id_usuario)
 )
 
@@ -65,8 +68,7 @@ CREATE table creditos(
     id_credito INT NOT NULL AUTO_INCREMENT,
     id_usuario INT NOT NULL,
     nombre VARCHAR(250) NOT NULL, 
-    celular VARCHAR(250) NOT NULL, 
-    valor VARCHAR(250) NOT NULL, 
+    celular VARCHAR(250) NOT NULL,  
     fecha VARCHAR(250) NOT NULL,
     PRIMARY KEY (id_credito),
     CONSTRAINT fk_id_usuario,

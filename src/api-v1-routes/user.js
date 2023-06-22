@@ -11,9 +11,9 @@ const router = express.Router();
 
 //router.get("/", getAllUsers);
 //router.put("/:id", updateUsers);
-//router.put("/password", recoverPassword);
+router.put("/password", recoverPassword);
 router.post("/aut", authenticateUser);
 router.post("/", createUsers);
-//router.delete("/:id", deleteUsers);
+router.delete("/:id", deleteUsers);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 
-const GetAllRecordDB = (id, pagina) => {
+const GetAllDeudaDB = (id, pagina) => {
   const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM suma_deuda WHERE id_deuda =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
@@ -18,9 +18,9 @@ const GetAllRecordDB = (id, pagina) => {
   });
 };
 
-const DeleteRecordDB = (id) => {
+const DeleteDeudaDB = (id) => {
   return new Promise((resolve, reject) => {
-    conexion.query("DELETE FROM suma_credito WHERE id_suma=?", [id], (err, result) => {
+    conexion.query("DELETE FROM suma_deuda WHERE id_suma=?", [id], (err, result) => {
       if (err) {
         const err1 = err;
         reject(err1);
@@ -31,10 +31,10 @@ const DeleteRecordDB = (id) => {
   });
 };
 
-const UdateRecordDB = (data) => {
-  const { fecha, producto, valor, idRecord } = data;
+const UdateDeudaDB = (data) => {
+  const { fecha, producto, valor, idDeuda } = data;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE suma_credito SET fecha =?, producto =?, valor =? WHERE id_suma=?", [fecha, producto, valor, idRecord], (err, row) => {
+    conexion.query("UPDATE suma_deuda SET fecha =?, producto =?, valor =? WHERE id_suma=?", [fecha, producto, valor, idDeuda], (err, row) => {
       if (err) {
         reject(err);
       } else {
@@ -44,11 +44,11 @@ const UdateRecordDB = (data) => {
   });
 };
 
-const CreateRecordDB = (record) => {
-  const { fecha, producto, valor, idCredito } = record;
+const CreateDeudaDB = (Deuda) => {
+  const { fecha, producto, valor, idDeuda } = Deuda;
 
   return new Promise((resolve, reject) => {
-    conexion.query("INSERT INTO suma_credito SET ?", [{ fecha, producto, valor, id_credito: idCredito }], (err, row) => {
+    conexion.query("INSERT INTO suma_deuda SET ?", [{ fecha, producto, valor, id_deuda: idDeuda }], (err, row) => {
       if (err) {
         reject(err.message);
       } else {
@@ -60,8 +60,8 @@ const CreateRecordDB = (record) => {
 };
 
 module.exports = {
-  GetAllRecordDB,
-  DeleteRecordDB,
-  UdateRecordDB,
-  CreateRecordDB
+  GetAllDeudaDB,
+  DeleteDeudaDB,
+  UdateDeudaDB,
+  CreateDeudaDB
 };

@@ -3,11 +3,21 @@ const bcrypt = require("bcryptjs");
 
 const getAllUsersDB = () => {
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM administrador", [], () => {});
+    conexion.query("SELECT * FROM administrador", [], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (result.length <= 0) {
+          resolve({ success: false });
+        } else {
+          resolve({ success: true, data: result });
+        }
+      }
+    });
   });
 };
 const createUsersDB = (user) => {
-  const { nombre, correo, celular, pass } = user;
+  const { nombre, correo, celular, pass, inicio, fecha, activo, clave } = user;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM administrador WHERE correo=?", [correo], (err, result) => {
       if (err) {
@@ -16,7 +26,7 @@ const createUsersDB = (user) => {
         if (!result.length <= 0) {
           resolve({ message: "el usuario ya se encuentra registrado con este correo", success: false });
         } else {
-          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass }], (err, row) => {
+          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass, inicio, fecha, activo, clave }], (err, row) => {
             if (err) {
               reject(err);
             } else {
@@ -28,14 +38,27 @@ const createUsersDB = (user) => {
     });
   });
 };
-const updateUsersDB = (req, res) => {
+const updateUsersDB = (user) => {
+  const { nombre, correo, celular, idUsuario } = user;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=?, contraseña=? WHERE id_usuario =?", [], () => {});
+    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=? WHERE id_usuario =?", [{ nombre, correo, celular, id_usuario: idUsuario }], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row.affectedRows);
+      }
+    });
   });
 };
-const deleteUsersDB = (req, res) => {
+const deleteUsersDB = (id) => {
   return new Promise((resolve, reject) => {
-    conexion.query("", [], () => {});
+    conexion.query("DELETE FROM administrador WHERE id_usuario =?", [id], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ message: "se elimino correctamente", success: true });
+      }
+    });
   });
 };
 
@@ -64,9 +87,26 @@ const authenticateUserDB = (user) => {
   });
 };
 
-const recoverPasswordDB = () => {
+const recoverPasswordDB = (update) => {
+  const { celular, correo, contraseña } = update;
   return new Promise((resolve, reject) => {
-    conexion.query("", [], () => {});
+    conexion.query("SELECT * FROM administrador WHERE correo =? AND celular =?", [correo, celular], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (result.length <= 0) {
+          resolve({ message: "escribe un correo y numero de celular que se encuentren registrados", success: false });
+        } else {
+          conexion.query("UPDATE administrador SET contraseña=? WHERE correo =?", [contraseña, correo], (err, row) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ message: "se actualizo correctamente la contraseña", success: true });
+            }
+          });
+        }
+      }
+    });
   });
 };
 
@@ -77,4 +117,5 @@ module.exports = {
   deleteUsersDB,
   updateUsersDB,
   createUsersDB
+
 };

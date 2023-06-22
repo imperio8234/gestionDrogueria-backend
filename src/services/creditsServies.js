@@ -1,12 +1,52 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 
-const GetAllCustomersDB = () => {
+const GetAllCustomersDB = (id, pagina) => {
+  const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM creditos", (err, result) => {
+    conexion.query("SELECT * FROM creditos WHERE id_usuario =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
       if (err) {
         reject(err);
       }
-      resolve(result);
+      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM creditos", (err, pages) => {
+        if (err) {
+          reject(err);
+        } else {
+          // calcular el valor total de cada credito
+          conexion.query("select id_credito from creditos where id_usuario = ?", [id], (err, user) => {
+            if (err) {
+              reject(err.message);
+            } else {
+            // se recojen las identificaciones
+              const idUsuarios = [];
+              for (const i in user) {
+                idUsuarios.push(user[i].id_credito);
+              }
+              conexion.query(`select id_credito, sum(valor) as total
+              from(
+              select id_credito, valor from suma_credito
+              union all
+              select id_credito, valor from abonos_credito
+              )as id_credito
+              where id_credito in (${idUsuarios})
+              group by id_credito`, (err, valorTotal) => {
+                if (err) {
+                  reject(err.message);
+                } else {
+                  // sumatoria de todos los valores
+                  const valorT = [];
+                  for (const i in valorTotal) {
+                    valorT.push(valorTotal[i].total);
+                  }
+                  const resultValor = valorT.reduce((a, b) => {
+                    return a + b;
+                  });
+                  resolve({ success: true, data: { data: result, totalcreditos: resultValor }, paginas: pages[0] });
+                }
+              });
+            }
+          });
+        }
+      });
     });
   });
 };
@@ -39,7 +79,6 @@ const UdateCustomersDB = (updateCustomer) => {
 
 const CreateCustomersDB = (customer) => {
   const { idUsuario, nombre, phoneNumber, date } = customer;
-  console.log(idUsuario, nombre, phoneNumber, date);
 
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM creditos WHERE nombre =?", [nombre], (err, result) => {

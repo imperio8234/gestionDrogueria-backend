@@ -1,8 +1,11 @@
-const { createUsersDB, authenticateUserDB } = require("../services/userServices");
+const { createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB } = require("../services/userServices");
 const isNumber = require("../toolsDev/isNumber");
 const bcrypt = require("bcryptjs");
 const isEmail = require("../toolsDev/isEmail");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../toolsDev/sendEmail");
+const sendEmailOaut = require("../toolsDev/sendEmailOaut");
+const random = require("../toolsDev/random");
 
 const getAllUsers = (req, res) => {
 
@@ -11,11 +14,16 @@ const createUsers = (req, res) => {
   const { nombre, correo, celular, contraseña } = req.body;
   // contraseña encriptada
   const pass = bcrypt.hashSync(contraseña, 8);
+
   const user = {
     nombre,
     correo,
     celular,
-    pass
+    pass,
+    activo: true,
+    fecha: new Date(),
+    inicio: new Date().getDate(),
+    clave: random(1000, 9000)
   };
 
   if (!isNumber(celular) || celular.length !== 10) {
@@ -37,6 +45,7 @@ const createUsers = (req, res) => {
     createUsersDB(user)
       .then(result => {
         if (result.success) {
+          sendEmailOaut(nombre);
           res.json({
             success: true,
             message: result.message
@@ -62,7 +71,25 @@ const updateUsers = (req, res) => {
 
 };
 const deleteUsers = (req, res) => {
-
+  const id = req.params.id;
+  deleteUsersDB(id)
+    .then(result => {
+      if (result) {
+        res.json({
+          success: true,
+          message: result.message
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.status(500).json({
+          message: "el usuario no puede ser eliminado deberias eliminar todos los registros asociados ",
+          err,
+          success: false
+        });
+      }
+    });
 };
 
 const authenticateUser = (req, res) => {
@@ -87,10 +114,13 @@ const authenticateUser = (req, res) => {
         const data = {
           id_usuario: result.data[0].id_usuario,
           nombre: result.data[0].nombre,
-          celular: result.data[0].celular
+          activo: result.data[0].activo,
+          fecha: result.data[0].fecha,
+          inicio: result.data[0].inicio
+
         };
         // token
-        const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10m" });
+        const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10h" });
         if (result.success) {
           res.json({
             success: true,
@@ -116,8 +146,37 @@ const authenticateUser = (req, res) => {
   }
 };
 
-const recoverPassword = () => {
+const recoverPassword = (req, res) => {
+  const { celular, correo } = req.body;
+  const newPass = random(1000000000, 9000000000);
+  const pass = newPass.toString();
+  const contraseña = bcrypt.hashSync(pass, 10);
 
+  const data = {
+    celular,
+    correo,
+    contraseña
+  };
+  recoverPasswordDB(data)
+    .then(result => {
+      if (result.success) {
+        sendEmail(correo, pass);
+        res.json({
+          message: "revisa tu correo usa la contraseña y cambiala lo mas rapido posible",
+          success: true
+        });
+      } else {
+        res.json({
+          message: result.message,
+          success: result.success
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.status(500).json({ message: "sucedio algo", err });
+      }
+    });
 };
 
 module.exports = {

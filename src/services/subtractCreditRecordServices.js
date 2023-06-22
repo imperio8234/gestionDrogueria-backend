@@ -1,12 +1,19 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 
-const GetAllsubtractCreditRecordDB = (id) => {
+const GetAllsubtractCreditRecordDB = (id, pagina) => {
+  const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM abonos_credito WHERE id_credito=? ", [id], (err, result) => {
+    conexion.query("SELECT * FROM abono_credito WHERE id_credito =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
       if (err) {
         reject(err);
       }
-      resolve(result);
+      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM abono_credito", (err, pages) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ success: true, data: result, paginas: pages[0] });
+        }
+      });
     });
   });
 };

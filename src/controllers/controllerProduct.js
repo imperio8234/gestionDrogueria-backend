@@ -1,7 +1,8 @@
 const { GetAllproductDB, DeleteproductDB, UpdateproductDB, CreateproductDB } = require("../services/productServices");
 const isNumber = require("../toolsDev/isNumber");
 const getAllproducts = (req, res) => {
-  GetAllproductDB()
+  const id = req.params.id;
+  GetAllproductDB(id)
     .then(data => {
       if (data.length <= 0) {
         res.json({

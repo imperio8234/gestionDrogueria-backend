@@ -3,7 +3,7 @@ const { GetCustomers, CreateCustomers, DeletCustomers, UpdateCustomers } = requi
 
 const router = express.Router();
 
-router.get("/", GetCustomers);
+router.get("/:id/:page", GetCustomers);
 router.post("/", CreateCustomers);
 router.delete("/:idcustomer", DeletCustomers);
 router.put("/", UpdateCustomers);
