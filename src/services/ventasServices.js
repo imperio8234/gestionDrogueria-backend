@@ -82,7 +82,6 @@ const buscarProductoDB = (producto, idUsuario) => {
       if (err) {
         reject(err.message);
       } else {
-        console.log(result)
         resolve(result);
       }
     });

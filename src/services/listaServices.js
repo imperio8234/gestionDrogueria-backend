@@ -1,4 +1,3 @@
-const { query } = require("express");
 const conexion = require("../toolsDev/midelware/bd_conection");
 const getListaDB = (idUsuario) => {
   return new Promise((resolve, reject) => {

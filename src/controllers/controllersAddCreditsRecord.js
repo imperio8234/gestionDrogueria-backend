@@ -1,6 +1,5 @@
 const { GetAllRecordDB, CreateRecordDB, UdateRecordDB, DeleteRecordDB } = require("../services/addCreditsRecordServices");
 const isNumber = require("../toolsDev/isNumber.js");
-const { is } = require("../toolsDev/isNumber.js");
 const CreateRecord = (req, res) => {
   const { idCredito, fecha, producto, valor } = req.body;
   const record = {

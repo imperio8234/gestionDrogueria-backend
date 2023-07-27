@@ -41,7 +41,6 @@ const getcreditosMetrica = (req, res) => {
     });
 };
 const getdeudasMetrica = (req, res) => {
-    console.log("hola")
   const idUsuario = req.params.id;
   getdeudasMetricaDB(idUsuario)
     .then(result => {

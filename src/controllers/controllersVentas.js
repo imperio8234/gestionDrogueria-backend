@@ -95,9 +95,9 @@ const buscarProducto = (req, res) => {
       }
     });
 };
-const eliminarVenta = () => {
-
-};
+// const eliminarVenta = () => {
+//
+// };
 module.exports = {
   crearVenta,
   getVentas,

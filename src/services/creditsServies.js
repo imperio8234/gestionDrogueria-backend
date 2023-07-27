@@ -6,18 +6,15 @@ const GetAllCustomersDB = (id, pagina) => {
     conexion.query("SELECT * FROM creditos WHERE id_usuario =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
       if (err) {
         reject(err);
-        console.log(err, 1)
       }
       conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM creditos", (err, pages) => {
         if (err) {
           reject(err);
-          console.log(err, 2)
         } else {
           // calcular el valor total de cada credito
           conexion.query("select id_credito from creditos where id_usuario = ?", [id], (err, user) => {
             if (err) {
               reject(err.message);
-              console.log(err, 3)
             } else {
             // se recojen las identificaciones
               const idUsuarios = [];
@@ -34,7 +31,6 @@ const GetAllCustomersDB = (id, pagina) => {
               group by id_credito`, (err, valorTotal) => {
                 if (err) {
                   reject(err.message);
-                  console.log(err, 4)
                 } else {
                   // sumatoria de todos los valores
                   const valorT = [0];
