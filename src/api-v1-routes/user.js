@@ -9,8 +9,8 @@ const {
 } = require("../controllers/controllersUser");
 const router = express.Router();
 
-//router.get("/", getAllUsers);
-//router.put("/:id", updateUsers);
+router.get("/", getAllUsers);
+router.put("/", updateUsers);
 router.put("/password", recoverPassword);
 router.post("/aut", authenticateUser);
 router.post("/", createUsers);

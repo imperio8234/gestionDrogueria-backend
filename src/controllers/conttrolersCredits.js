@@ -1,4 +1,5 @@
-const { GetAllCustomersDB, CreateCustomersDB, UdateCustomersDB, DeleteCustomersDB } = require("../services/creditsServies");
+const { GetAllCustomersDB, CreateCustomersDB, UdateCustomersDB, DeleteCustomersDB, findCustomersDB } = require("../services/creditsServies");
+const isNumber = require("../toolsDev/isNumber");
 
 const CreateCustomers = (req, res) => {
   const { idUsuario, nombre, phoneNumber, date } = req.body;
@@ -9,28 +10,35 @@ const CreateCustomers = (req, res) => {
     date
   };
 
-  CreateCustomersDB(customer)
-    .then(result => {
-      if (result) {
-        res.json({
-          message: "se guardo exitosamente",
-          success: true
-        });
-      } else {
-        res.json({
-          message: "el cliente ya esta registrado",
-          success: false
-        });
-      }
-    })
-    .catch(err => {
-      if (err) {
-        res.json({
-          message: err,
-          success: false
-        });
-      }
+  if (idUsuario && isNumber(phoneNumber) && nombre) {
+    CreateCustomersDB(customer)
+      .then(result => {
+        if (result) {
+          res.json({
+            message: "se guardo exitosamente",
+            success: true
+          });
+        } else {
+          res.json({
+            message: "el cliente ya esta registrado",
+            success: false
+          });
+        }
+      })
+      .catch(err => {
+        if (err) {
+          res.json({
+            message: err,
+            success: false
+          });
+        }
+      });
+  } else {
+    res.json({
+      success: false,
+      message: "algunos de los datos son incorrectos o faltantes"
     });
+  }
 };
 const GetCustomers = (req, res) => {
   const id = req.params.id;
@@ -54,7 +62,8 @@ const GetCustomers = (req, res) => {
       if (err) {
         res.json({
           success: false,
-          message: "error al obener los datos"
+          message: "error al obener los datos",
+          err
         });
       }
     });
@@ -106,11 +115,40 @@ const UpdateCustomers = (req, res) => {
     });
 };
 
+const findCustomers = (req, res) => {
+  const id = req.params.id;
+  const words = req.params.words;
+  console.log(id, words);
+
+  findCustomersDB(id, words)
+    .then(result => {
+      if (result.success) {
+        res.json({
+          success: result.success,
+          data: result.result
+        });
+      } else {
+        res.json({
+          message: result.message,
+          success: result.success
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.status(500).json({
+          message: "error ",
+          err
+        });
+      }
+    });
+};
 module.exports = {
 
   GetCustomers,
   DeletCustomers,
   UpdateCustomers,
-  CreateCustomers
+  CreateCustomers,
+  findCustomers
 
 };

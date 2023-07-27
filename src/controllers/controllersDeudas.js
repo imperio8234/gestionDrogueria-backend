@@ -1,4 +1,4 @@
-const { CreatedeudaDB, GetAlldeudaDB, DeletedeudaDB, UpdatedeudaDB } = require("../services/deudasServices");
+const { CreatedeudaDB, GetAlldeudaDB, DeletedeudaDB, UpdatedeudaDB, findDeudaDB } = require("../services/deudasServices");
 
 const CreateDeudas = (req, res) => {
   const { idUsuario, nombre, celular, date } = req.body;
@@ -106,11 +106,39 @@ const UpdateDeudas = (req, res) => {
     });
 };
 
+const findDeudas = (req, res) => {
+  const id = req.params.id;
+  const words = req.params.words;
+
+  findDeudaDB(id, words)
+    .then(result => {
+      if (result.success) {
+        res.json({
+          success: result.success,
+          data: result.result
+        });
+      } else {
+        res.json({
+          message: result.message,
+          success: result.success
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.status(500).json({
+          message: "error ",
+          err
+        });
+      }
+    });
+};
 module.exports = {
 
   GetDeudas,
   DeletDeudas,
   UpdateDeudas,
-  CreateDeudas
+  CreateDeudas,
+  findDeudas
 
 };

@@ -1,8 +1,9 @@
 const express = require("express");
-const { GetCustomers, CreateCustomers, DeletCustomers, UpdateCustomers } = require("../controllers/conttrolersCredits");
+const { findCustomers, GetCustomers, CreateCustomers, DeletCustomers, UpdateCustomers } = require("../controllers/conttrolersCredits");
 
 const router = express.Router();
 
+router.get("/find/:id/:words", findCustomers);
 router.get("/:id/:page", GetCustomers);
 router.post("/", CreateCustomers);
 router.delete("/:idcustomer", DeletCustomers);

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 
 const getAllUsersDB = () => {
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM administrador", [], (err, result) => {
+    conexion.query("SELECT * FROM administrador", (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -41,7 +41,7 @@ const createUsersDB = (user) => {
 const updateUsersDB = (user) => {
   const { nombre, correo, celular, idUsuario } = user;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=? WHERE id_usuario =?", [{ nombre, correo, celular, id_usuario: idUsuario }], (err, row) => {
+    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=? WHERE id_usuario =?", [nombre, correo, celular, idUsuario], (err, row) => {
       if (err) {
         reject(err);
       } else {

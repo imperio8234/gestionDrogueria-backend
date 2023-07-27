@@ -102,3 +102,72 @@ CREATE TABLE suma_credito(
     REFERENCES creditos(id_credito)
 
 );
+
+// modulo de ventas 
+
+CREATE TABLE ventas(
+    id_usuario INT NOT NULL,
+    id_venta INT NOT NULL AUTO_INCREMENT,
+    fecha VARCHAR(300) NOT NULL,
+    total_venta INT NOT NULL,
+    PRIMARY key (id_venta)
+    CONSTRAINT fk_venta
+    FOREIGN KEY (id_usuario)
+    REFERENCES administrador(id_usuario)
+    ON DELETE CASCADE
+)
+
+CREATE TABLE productos_vendidos(
+    id_producto_vendido INT NOT NULL AUTO_INCREMENT,
+    id_venta INT NOT NULL,
+    producto VARCHAR(400),
+    cantidad INT NOT NULL,
+    valor INT NOT NULL,
+    PRIMARY KEY (id_producto_vendido),
+    CONSTRAINT fk_id_venta
+    FOREIGN KEY (id_venta)
+    REFERENCES ventas(id_venta)
+    ON DELETE CASCADE
+)
+
+CREATE TABLE devoluciones(
+    id_devolucion INT NOT NULL AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    cantidad INT NOT NULL,
+    producto VARCHAR(400),
+    valor INT NOT NULL,
+    PRIMARY KEY (id_devolucion),
+    
+    FOREIGN KEY (id_usuario)
+    REFERENCES administrador(id_usuario)
+)
+
+CREATE TABLE gastos(
+    id_gasto INT NOT NULL AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    fecha VARCHAR(400) NOT NULL,
+    descripcion VARCHAR(600),
+    valor INT NOT NULL,
+    PRIMARY KEY (id_gasto),
+    CONSTRAINT fk_id_venta
+    FOREIGN key (id_usuario)
+    REFERENCES administrador(id_usuario)
+
+)
+
+
+--- tabla de lista -------
+
+CREATE table lista (
+    id_usuario INT NOT NULL,
+    id_producto INT
+    nombre VARCHAR(400),
+    unidades INT,
+    precio INT,
+    valor_total INT,
+    laboratorio VARCHAR(500),
+    PRIMARY KEY (id_producto)
+    CONSTRAINT fk_lista
+    FOREIGN KEY (id_usuario)
+    REFERENCES administrador(id_usuario)
+)

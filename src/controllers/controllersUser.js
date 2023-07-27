@@ -1,4 +1,4 @@
-const { createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB } = require("../services/userServices");
+const { createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB, updateUsersDB, getAllUsersDB } = require("../services/userServices");
 const isNumber = require("../toolsDev/isNumber");
 const bcrypt = require("bcryptjs");
 const isEmail = require("../toolsDev/isEmail");
@@ -8,7 +8,28 @@ const sendEmailOaut = require("../toolsDev/sendEmailOaut");
 const random = require("../toolsDev/random");
 
 const getAllUsers = (req, res) => {
-
+  getAllUsersDB()
+    .then(result => {
+      if (result.success) {
+        res.json({
+          success: true,
+          data: result.data
+        });
+      } else {
+        res.json({
+          success: false,
+          message: "no se encontraron usuarios"
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.json({
+          message: "error",
+          err
+        });
+      }
+    });
 };
 const createUsers = (req, res) => {
   const { nombre, correo, celular, contraseña } = req.body;
@@ -68,7 +89,30 @@ const createUsers = (req, res) => {
   }
 };
 const updateUsers = (req, res) => {
-
+  const { nombre, correo, celular, idUsuario } = req.body;
+  const usuario = {
+    nombre,
+    correo,
+    celular,
+    idUsuario
+  };
+  updateUsersDB(usuario)
+    .then(result => {
+      if (result) {
+        res.json({
+          message: "se actualizo el perfil del usuario",
+          success: true
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.status(500).json({
+          message: "error",
+          err
+        });
+      }
+    });
 };
 const deleteUsers = (req, res) => {
   const id = req.params.id;

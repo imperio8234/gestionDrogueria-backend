@@ -1,4 +1,5 @@
 
+### crear productos
 POST http://localhost:2000/api/v1/productos HTTP/1.1
 Content-Type: application/json
 
@@ -24,21 +25,47 @@ GET http://localhost:2000/api/v1/metrica/deudas/1 HTTP/1.1
 Content-Type: application/json
 
 
-######## 
-
-GET http://localhost:2000/api/v1/credits/1/1 HTTP/1.1
-Content-Type: application/json
-
-
-
-######## 
+######## deudas #############
 
 GET http://localhost:2000/api/v1/deudas/1/1 HTTP/1.1
 Content-Type: application/json
+### crear deudas 
+POST http://localhost:2000/api/v1/deudas HTTP/1.1
+Content-Type: application/json
 
-####
+{
+    "nombre": "jhon anderson", 
+    "celular": "3128982063",
+    "date": "juni 2023",
+    "idUsuario": 1
+}
+#### pedir registro de suma de las deudas
+GET http://localhost:2000/api/v1/add-deuda-record/1/1 HTTP/1.1
+Content-Type: application/json
 
-POST http://localhost:2000/createcustomers HTTP/1.1
+###crear registro de la suma de la deuda 
+POST http://localhost:2000/api/v1/add-deuda-record HTTP/1.1
+Content-Type: application/json
+
+{
+    "idDeuda": 1,
+    "fecha": "enero 2023",
+    "producto": "pera",
+    "valor": 20000
+}
+
+##### pedir registro de los abonos de las deudas
+GET http://localhost:2000/api/v1/substractdeuda-record/1/1 HTTP/1.1
+Content-Type: application/json
+
+######## 
+
+GET http://localhost:2000/api/v1/creditos/1/1 HTTP/1.1
+Content-Type: application/json
+
+#### crear credito
+
+POST http://localhost:2000/api/v1/creditos HTTP/1.1
 Content-Type: application/json
 
 
@@ -77,6 +104,11 @@ Content-Type: application/json
     "valor": "20000"
 }
 
+#### buscar creditoitos 
+
+GET http://localhost:2000/api/v1/creditos/find/1/ander  HTTP/1.1
+Content-Content-Type: application/json
+
 #####   crear
 
 
@@ -85,7 +117,7 @@ Content-Type: application/json
 
 
 {
-    "fecha": "5/3/2023 hora 5:50",
+    "fecha": "5/3/2023",
     "idCredito": 11,
     "producto": "banano",
     "valor": "20000"
@@ -110,11 +142,13 @@ Content-Type: application/json
 
 ### get products
 
-GET  http://localhost:2000/api/v1/productos/12 HTTP/1.1
+GET  http://localhost:2000/api/v1/productos/12/1 HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxMiwibm9tYnJlIjoidGFuaWEgbWFyY2VsYSIsImFjdGl2byI6MSwiZmVjaGEiOiIyMDIzLTA2LTE3IDIyOjMzOjM5LjgyNSIsImluaWNpbyI6MTcsImlhdCI6MTY4NzA2MTM1MSwiZXhwIjoxNjg3MDk3MzUxfQ._16AQs7v8bnssbP21zRWm0MjyGBCTSMwlgtXqON0DCM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c3VhcmlvIjoxMiwibm9tYnJlIjoidGFuaWEgbWFyY2VsYSIsImFjdGl2byI6MSwiZmVjaGEiOiIyMDIzLTA2LTE3IDIyOjMzOjM5LjgyNSIsImluaWNpbyI6MTcsImlhdCI6MTY4NzUyODEzOCwiZXhwIjoxNjg3NTY0MTM4fQ._cdMpnamU-sd5bIvTccoRxA_UH0k_HdbM9D6n6W0T_g
 
-
+#### buscar productos 
+GET  http://localhost:2000/api/v1/productos/buscar/1/aceta HTTP/1.1
+Content-Type: application/json
 #### crear producto
 
 POST   http://localhost:2000/api/v1/productos HTTP/1.1
@@ -132,8 +166,9 @@ Content-Type: application/json
 
 
 
+
 ### get abonos
-GET http://localhost:2000/api/v1/substractcredit-record/1 HTTP/1.1
+GET http://localhost:2000/api/v1/substractcredit-record/1/1 HTTP/1.1
 Content-Type: application/json
 
 
@@ -180,13 +215,23 @@ Content-Type: application/json
     "contraseña": "1234567891"
 }
 
+####  modificar usuario 
+PUT http://localhost:2000/api/v1/user HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre": "alejandro",
+    "correo": "htsds@gmail.com",
+    "celular": "3145152824",
+    "idUsuario": "1"
+}
+
 ### autentificacion  
 
 POST http://localhost:2000/api/v1/user/aut HTTP/1.1
 Content-Type: application/json
 
 {
-   
     "correo":  "trejostania554@gmail.com",
     "contraseña": "4897204648"
 }
@@ -218,3 +263,100 @@ Content-Type: application/json
      "correo": "trejostania554@gmail.com",
     "celular": "3145152824"
 }
+
+
+
+#################     ventas #####################
+
+## vender 
+POST http://localhost:2000/api/v1/ventas HTTP/1.1
+Content-Type: application/json
+
+
+{
+  "idUsuario": 1,
+  "idVenta": 16,
+  "valorTotal": 30000,
+  "productosVendidos":[
+    {
+     "idProducto": 138, 
+     "idVenta":16, 
+     "producto": "acetaminofen", 
+     "cantidad": 5, 
+     "valor": 4000,
+     "laboratorio": "genfar",
+     "valor_total"
+    },
+    {
+     "idProducto": 138, 
+     "idVenta": 16, 
+     "producto": "anesecia", 
+     "cantidad": 2, 
+     "valor": 4000,
+     "laboratorio": "genfar",
+     "valor_total"
+
+    },{
+     "idProducto": 138, 
+     "idVenta": 16, 
+     "producto": "sellos", 
+     "cantidad": 2, 
+     "valor": 4000,
+     "laboratorio": "genfar",
+     "valor_total"
+    }
+  ]
+}
+
+
+####  optener ventas 
+
+
+GET http://localhost:2000/api/v1/ventas/1/1 HTTP/1.1
+Content-Type: application/json
+
+##### optener productos vendidos de cada venta
+GET http://localhost:2000/api/v1/ventas/productosventas/5 HTTP/1.1
+Content-Type: application/json
+
+
+#### buscar productos para venter
+GET http://localhost:2000/api/v1/ventas/buscar/acetami/1 HTTP/1.1
+Content-Type: application/json
+
+
+##### lista de ventas 
+
+#### optener lista 
+GET http://localhost:2000/api/v1/lista/1 HTTP/1.1
+
+### crear lista
+POST http://localhost:2000/api/v1/lista HTTP/1.1
+Content-Type: application/json
+
+{
+    "id_usuario":1,
+    "nombre": "acetamino",
+    "laboratorio":"genfar",
+    "unidades": 3,
+    "precio": 2000,
+    "valorTotal": 6000,
+    "id_producto": 125
+}
+
+###modificar lista
+PUT http://localhost:2000/api/v1/lista HTTP/1.1
+Content-Type: application/json
+
+{
+    "idUsuario": 1,
+    "idProducto": 123,
+    "unidades": 1,
+    "valorTotal": 2000
+}
+
+#### eliminar de la lista
+DELETE http://localhost:2000/api/v1/lista/1/125 HTTP/1.1
+
+#### eliminar toda la lista
+DELETE http://localhost:2000/api/v1/lista/all/1 HTTP/1.1

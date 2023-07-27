@@ -1,8 +1,9 @@
-const { GetAllproductDB, DeleteproductDB, UpdateproductDB, CreateproductDB } = require("../services/productServices");
+const { GetAllproductDB, DeleteproductDB, UpdateproductDB, CreateproductDB, findProductDB } = require("../services/productServices");
 const isNumber = require("../toolsDev/isNumber");
 const getAllproducts = (req, res) => {
   const id = req.params.id;
-  GetAllproductDB(id)
+  const pagina = req.params.page;
+  GetAllproductDB(id, pagina)
     .then(data => {
       if (data.length <= 0) {
         res.json({
@@ -119,9 +120,39 @@ const updateProducts = (req, res) => {
   }
 };
 
+const findProduct = (req, res) => {
+  const id = req.params.id;
+  const words = req.params.words;
+
+  findProductDB(id, words)
+    .then(result => {
+      if (result.data.length <= 0) {
+        res.json({
+          message: "no se encontro ningun registro",
+          success: false
+        });
+      } else {
+        res.json({
+          success: true,
+          data: result.data
+        });
+      };
+    })
+    .catch(err => {
+      if (err) {
+        res.json({
+          success: false,
+          message: "ocurrio un error",
+          err
+        });
+      }
+    });
+};
+
 module.exports = {
   getAllproducts,
   deleteProducts,
   updateProducts,
-  createProducts
+  createProducts,
+  findProduct
 };

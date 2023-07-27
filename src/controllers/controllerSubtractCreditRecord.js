@@ -4,12 +4,14 @@ const {
   deletesubtractCreditRecordDB,
   createsubtractCreditRecordDB
 } = require("../services/subtractCreditRecordServices");
+const isNumber = require("../toolsDev/isNumber");
 
 const GetAllsubtractCreditRecord = (req, res) => {
   const idCredit = req.params.id;
-  GetAllsubtractCreditRecordDB(idCredit)
+  const page = req.params.page;
+  GetAllsubtractCreditRecordDB(idCredit, page)
     .then(result => {
-      if (!result.length <= 0) {
+      if (!result.data.length <= 0) {
         res.json({
           success: true,
           data: result
@@ -25,7 +27,8 @@ const GetAllsubtractCreditRecord = (req, res) => {
       if (err) {
         res.json({
           success: false,
-          message: "error al obener los datos"
+          message: "error al obener los datos",
+          err
         });
       }
     });
@@ -81,28 +84,35 @@ const createsubtractCreditRecord = (req, res) => {
     valor
   };
 
-  createsubtractCreditRecordDB(record)
-    .then(result => {
-      if (result) {
-        res.json({
-          message: "se guardo exitosamente",
-          success: true
-        });
-      } else {
-        res.json({
-          message: "error al guardar",
-          success: false
-        });
-      }
-    })
-    .catch(err => {
-      if (err) {
-        res.json({
-          message: err,
-          success: false
-        });
-      }
+  if (idCredito && isNumber(valor) && fecha) {
+    createsubtractCreditRecordDB(record)
+      .then(result => {
+        if (result) {
+          res.json({
+            message: "se guardo exitosamente",
+            success: true
+          });
+        } else {
+          res.json({
+            message: "error al guardar",
+            success: false
+          });
+        }
+      })
+      .catch(err => {
+        if (err) {
+          res.json({
+            message: err,
+            success: false
+          });
+        }
+      });
+  } else {
+    res.json({
+      success: false,
+      message: "corrige el valor"
     });
+  }
 };
 
 module.exports = {

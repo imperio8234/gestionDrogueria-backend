@@ -102,9 +102,26 @@ const CreatedeudaDB = (customer) => {
   });
 };
 
+const findDeudaDB = (id, words) => {
+  return new Promise((resolve, reject) => {
+    conexion.query("select * from deudas where nombre like ? and id_usuario =? ", [`%${words}%`, id], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (result <= 0) {
+          resolve({ success: false, message: "no se encontraron registros" });
+        } else {
+          resolve({ success: true, result });
+        }
+      }
+    });
+  });
+};
+
 module.exports = {
   GetAlldeudaDB,
   DeletedeudaDB,
   UpdatedeudaDB,
-  CreatedeudaDB
+  CreatedeudaDB,
+  findDeudaDB
 };

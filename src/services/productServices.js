@@ -66,9 +66,21 @@ const CreateproductDB = (customer) => {
   });
 };
 
+const findProductDB = (id, words) => {
+  return new Promise((resolve, reject) => {
+    conexion.query("select * from productos where nombre like ? and id_usuario = ? ", [`%${words}%`, id], (err, result) => {
+      if (err) {
+        reject(err.message);
+      } else {
+        resolve({ success: true, data: result });
+      }
+    });
+  });
+};
 module.exports = {
   GetAllproductDB,
   DeleteproductDB,
   UpdateproductDB,
-  CreateproductDB
+  CreateproductDB,
+  findProductDB
 };
