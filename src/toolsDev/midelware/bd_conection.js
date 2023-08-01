@@ -1,7 +1,7 @@
 const sql = require("mysql2");
 
 // avariables
-const DB_HOST = process.env.DB_HOST || "172.31.30.34";
+const DB_HOST = process.env.DB_HOST || "3.22.117.141";
 const DB_USER = process.env.DB_USER || "villa";
 const DB_PASSWORD = process.env.DB_PASSWORD || "imperio8234";
 const DB_NAME = process.env.DB_NAME || "villa";

@@ -160,14 +160,14 @@ CREATE TABLE gastos(
 
 CREATE table lista (
     id_usuario INT NOT NULL,
-    id_producto INT
+    id_producto INT,
     nombre VARCHAR(400),
     unidades INT,
     precio INT,
     valor_total INT,
     laboratorio VARCHAR(500),
-    PRIMARY KEY (id_producto)
+    PRIMARY KEY (id_producto),
     CONSTRAINT fk_lista
     FOREIGN KEY (id_usuario)
     REFERENCES administrador(id_usuario)
-)
+);

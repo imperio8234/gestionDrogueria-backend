@@ -2,7 +2,7 @@
 const Express = require("express");
 const cors = require("cors");
 // VARIABLES DE ENTORNO
-const DB_PORT = process.env.DB_PORT || 3000;
+const DB_PORT = process.env.DB_PORT || 2000;
 /* const corsOptions={
     origin: "http://127.0.0.1:5500",
     allowedHeaders: ["Content-Type", "Authorization"],
