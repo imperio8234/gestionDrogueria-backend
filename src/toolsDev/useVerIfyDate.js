@@ -1,12 +1,15 @@
-const useverifyDate = (fecha, dia) => {
-  const fecha1 = new Date(fecha);
-  const date30DaysLater = new Date();
-  date30DaysLater.setDate(dia + 30);
+const useverifyDate = (date) => {
+  const fechaRegistro = new Date(date);
 
-  const dateDifference = fecha1 - date30DaysLater;
+  const duracionSuscripcion = 30;
 
-  const remainingDays = Math.floor(dateDifference / (1000 * 60 * 60 * 24));
-  return Math.abs(remainingDays);
+  const fechaActual = new Date();
+
+  const fechaVencimiento = new Date(fechaRegistro);
+  fechaVencimiento.setDate(fechaRegistro.getDate() + duracionSuscripcion);
+
+  const diasRestantes = Math.ceil((fechaVencimiento - fechaActual) / (1000 * 60 * 60 * 24));
+  return diasRestantes;
 };
 
 module.exports = useverifyDate;

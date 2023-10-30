@@ -45,11 +45,24 @@ const createsubtractDeudaRecordDB = (record) => {
   const { fecha, valor, idDeuda } = record;
 
   return new Promise((resolve, reject) => {
-    conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_Deuda: idDeuda }], (err, row) => {
+    conexion.query("select valor from suma_deuda where id_deuda=?", [{ id_deuda: idDeuda }], (err, valoresCredito) => {
       if (err) {
         reject(err.message);
       } else {
-        resolve(true);
+        const valores = [].concat(...valoresCredito.map(valor => valor));
+        if (valores.reduce((a, b) => a + b, 0) <= 0) {
+          resolve({ success: false, message: "no tienes pendientes" });
+        } else if (valor <= valores) {
+          resolve({ success: false, message: "el valor excede el credito" });
+        } else {
+          conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_deuda: idDeuda }], (err, row) => {
+            if (err) {
+              reject(err.message);
+            } else {
+              resolve({ success: true });
+            }
+          });
+        }
       }
     });
   }

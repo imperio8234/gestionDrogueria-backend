@@ -1,6 +1,6 @@
 const { getListaDB, createListaDB, UpdateListaDB, deleteListaDB, deleteAllListaDB } = require("../services/listaServices");
 const getLista = (req, res) => {
-  const idUsuario = req.params.id_usuario;
+  const idUsuario = req.usuario.id_usuario;
   getListaDB(idUsuario)
     .then(result => {
       if (result.length <= 0) {
@@ -27,20 +27,27 @@ const getLista = (req, res) => {
 };
 const createLista = (req, res) => {
   const item = req.body;
+  const idUsuario = req.usuario.id_usuario;
   const producto = {
     idProducto: item.id_producto,
-    idUsuario: item.id_usuario,
+    idUsuario,
     nombre: item.nombre,
     precio: item.precio,
     unidades: item.unidades,
-    valorTotal: item.valorTotal
+    valorTotal: item.valorTotal,
+    laboratorio: item.laboratorio
   };
   createListaDB(producto)
     .then(result => {
-      if (result) {
+      if (result.success) {
         res.json({
           message: "se creo correctamente",
           success: true
+        });
+      } else {
+        res.json({
+          message: result.message,
+          success: false
         });
       }
     })
@@ -56,18 +63,24 @@ const createLista = (req, res) => {
 };
 const updateLista = (req, res) => {
   const item = req.body;
+  const idUsuario = req.usuario.id_usuario;
   const producto = {
-    idUsuario: item.id_usuario,
+    idUsuario,
     idProducto: item.id_producto,
     unidades: item.unidades,
     valorTotal: item.valorTotal
   };
   UpdateListaDB(producto)
     .then(result => {
-      if (result) {
+      if (result.success) {
         res.json({
           message: "se actualizo correctamente",
           success: true
+        });
+      } else {
+        res.json({
+          message: result.message,
+          success: false
         });
       }
     })
@@ -81,7 +94,7 @@ const updateLista = (req, res) => {
     });
 };
 const deleteLista = (req, res) => {
-  const idUsuario = req.params.id_usuario;
+  const idUsuario = req.usuario.id_usuario;
   const idProducto = req.params.id_producto;
   deleteListaDB(idUsuario, idProducto)
     .then(result => {
@@ -104,7 +117,7 @@ const deleteLista = (req, res) => {
 };
 
 const deleteAllLista = (req, res) => {
-  const idUsuario = req.params.id_usuario;
+  const idUsuario = req.usuario.id_usuario;
   deleteAllListaDB(idUsuario)
     .then(result => {
       if (result) {

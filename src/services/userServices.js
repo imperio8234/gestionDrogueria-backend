@@ -16,6 +16,22 @@ const getAllUsersDB = () => {
     });
   });
 };
+const getUserDB = (idUsuario) => {
+  return new Promise((resolve, reject) => {
+    conexion.query("SELECT * FROM administrador where id_usuario = ?", [idUsuario], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (result.length <= 0) {
+          resolve({ success: false });
+        } else {
+          delete result[0].contraseña;
+          resolve({ success: true, data: result });
+        }
+      }
+    });
+  });
+};
 const createUsersDB = (user) => {
   const { nombre, correo, celular, pass, inicio, fecha, activo, clave } = user;
   return new Promise((resolve, reject) => {
@@ -116,6 +132,7 @@ module.exports = {
   authenticateUserDB,
   deleteUsersDB,
   updateUsersDB,
-  createUsersDB
+  createUsersDB,
+  getUserDB
 
 };

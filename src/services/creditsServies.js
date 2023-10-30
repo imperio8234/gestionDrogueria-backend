@@ -17,7 +17,7 @@ const GetAllCustomersDB = (id, pagina) => {
               reject(err.message);
             } else {
             // se recojen las identificaciones
-              const idUsuarios = [];
+              const idUsuarios = [0];
               for (const i in user) {
                 idUsuarios.push(user[i].id_credito);
               }

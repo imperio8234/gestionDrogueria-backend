@@ -1,43 +1,30 @@
+/* eslint-disable camelcase */
 const { GetAllRecordDB, CreateRecordDB, UdateRecordDB, DeleteRecordDB } = require("../services/addCreditsRecordServices");
-const isNumber = require("../toolsDev/isNumber.js");
-const CreateRecord = (req, res) => {
-  const { idCredito, fecha, producto, valor } = req.body;
-  const record = {
-    idCredito,
-    fecha,
-    producto,
-    valor
-  };
 
-  if (isNumber(valor) && producto) {
-    CreateRecordDB(record)
-      .then(result => {
-        if (result) {
-          res.json({
-            message: "se guardo exitosamente",
-            success: true
-          });
-        } else {
-          res.json({
-            message: "error al guardar",
-            success: false
-          });
-        }
-      })
-      .catch(err => {
-        if (err) {
-          res.json({
-            message: err,
-            success: false
-          });
-        }
-      });
-  } else {
-    res.json({
-      success: false,
-      message: "introduce un valor valido o te falta el nombre del producto"
+const CreateRecord = (req, res) => {
+  const record = req.body;
+  CreateRecordDB(record.productosVendidos)
+    .then(result => {
+      if (result.success) {
+        res.json({
+          message: "se guardo exitosamente",
+          success: true
+        });
+      } else {
+        res.json({
+          message: "error al guardar",
+          success: false
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.json({
+          message: err,
+          success: false
+        });
+      }
     });
-  }
 };
 const GetRecord = (req, res) => {
   const idCredit = req.params.id;

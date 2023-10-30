@@ -31,36 +31,48 @@ const DeleteproductDB = (id) => {
 };
 
 const UpdateproductDB = (updateProduct) => {
-  const { nombre, costo, precio, laboratorio, unidades, idProduct } = updateProduct;
+  const { nombre, costo, precio, laboratorio, unidades, idProduct, distribuidor, idUsuario } = updateProduct;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE productos SET nombre =?, unidades =?, precio =?, laboratorio=?, costo=?  WHERE id_producto=?", [nombre, unidades, precio, laboratorio, costo, idProduct], (err, row) => {
+    conexion.query("insert into productos_historial set ? ", [{ nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor }], (err, resultado) => {
       if (err) {
         reject(err);
       } else {
-        resolve(true);
+        conexion.query("UPDATE productos SET nombre =?, unidades =?, precio =?, laboratorio=?, costo=?  WHERE id_producto=?", [nombre, unidades, precio, laboratorio, costo, idProduct], (err, row) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(true);
+          }
+        });
       }
     });
   });
 };
 
 const CreateproductDB = (customer) => {
-  const { nombre, idUsuario, costo, precio, laboratorio, unidades } = customer;
+  const { nombre, idUsuario, costo, precio, laboratorio, unidades, distribuidor, codeBar } = customer;
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM productos WHERE nombre =?", [nombre], (err, result) => {
+    conexion.query("insert into productos_historial set ? ", [{ codeBar: parseInt(codeBar), nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor }], (err, rsultado) => {
       if (err) {
         reject(err);
       } else {
-        if (!result.length <= 0) {
-          resolve(false);
-        } else {
-          conexion.query("INSERT INTO productos SET ?", [{ nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades }], (err, row) => {
-            if (err) {
-              reject(err.message);
+        conexion.query("SELECT * FROM productos WHERE nombre =? or codeBar =? and id_usuario =?", [nombre, codeBar, idUsuario], (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            if (!result.length <= 0) {
+              resolve(false);
             } else {
-              resolve(true);
+              conexion.query("INSERT INTO productos SET ?", [{ codeBar: parseInt(codeBar), nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, distribuidor }], (err, row) => {
+                if (err) {
+                  reject(err.message);
+                } else {
+                  resolve(true);
+                }
+              });
             }
-          });
-        }
+          }
+        });
       }
     });
   });

@@ -1,4 +1,4 @@
-const { createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB, updateUsersDB, getAllUsersDB } = require("../services/userServices");
+const { createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB, updateUsersDB, getAllUsersDB, getUserDB } = require("../services/userServices");
 const isNumber = require("../toolsDev/isNumber");
 const bcrypt = require("bcryptjs");
 const isEmail = require("../toolsDev/isEmail");
@@ -6,9 +6,35 @@ const jwt = require("jsonwebtoken");
 const sendEmail = require("../toolsDev/sendEmail");
 const sendEmailOaut = require("../toolsDev/sendEmailOaut");
 const random = require("../toolsDev/random");
+const useverifyDate = require("../toolsDev/useVerIfyDate");
 
 const getAllUsers = (req, res) => {
   getAllUsersDB()
+    .then(result => {
+      if (result.success) {
+        res.json({
+          success: true,
+          data: result.data
+        });
+      } else {
+        res.json({
+          success: false,
+          message: "no se encontraron usuarios"
+        });
+      }
+    })
+    .catch(err => {
+      if (err) {
+        res.json({
+          message: "error",
+          err
+        });
+      }
+    });
+};
+const getUser = (req, res) => {
+  const idUsuario = req.usuario.id_usuario;
+  getUserDB(idUsuario)
     .then(result => {
       if (result.success) {
         res.json({
@@ -42,7 +68,7 @@ const createUsers = (req, res) => {
     celular,
     pass,
     activo: true,
-    fecha: new Date(),
+    fecha: new Date().toLocaleDateString(),
     inicio: new Date().getDate(),
     clave: random(1000, 9000)
   };
@@ -89,7 +115,8 @@ const createUsers = (req, res) => {
   }
 };
 const updateUsers = (req, res) => {
-  const { nombre, correo, celular, idUsuario } = req.body;
+  const idUsuario = req.usuario.id_usuario;
+  const { nombre, correo, celular } = req.body;
   const usuario = {
     nombre,
     correo,
@@ -155,22 +182,28 @@ const authenticateUser = (req, res) => {
   } else {
     authenticateUserDB(user)
       .then(result => {
-        const data = {
-          id_usuario: result.data[0].id_usuario,
-          nombre: result.data[0].nombre,
-          activo: result.data[0].activo,
-          fecha: result.data[0].fecha,
-          inicio: result.data[0].inicio
-
-        };
-        // token
-        const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10h" });
         if (result.success) {
+          const data = {
+            id_usuario: result.data[0].id_usuario,
+            nombre: result.data[0].nombre,
+            activo: result.data[0].activo,
+            fecha: result.data[0].fecha,
+            inicio: result.data[0].inicio
+          };
+
+          // fecha
+          const date = data.fecha.split("/");
+          const newDate = [date[2], date[1], date[0]].join("-");
+          const periodoExpirado = useverifyDate(newDate);
+          // token
+          const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10h" });
+          // enviar cookie
+          res.cookie("aut", token, { path: "/", httpOnly: true });
           res.json({
             success: true,
             message: "ingreso exitoso",
             data,
-            token
+            diasActivo: periodoExpirado
           });
         } else {
           res.json({
@@ -229,6 +262,7 @@ module.exports = {
   updateUsers,
   deleteUsers,
   authenticateUser,
-  recoverPassword
+  recoverPassword,
+  getUser
 
 };

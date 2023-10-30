@@ -1,7 +1,7 @@
 const { GetAllproductDB, DeleteproductDB, UpdateproductDB, CreateproductDB, findProductDB } = require("../services/productServices");
 const isNumber = require("../toolsDev/isNumber");
 const getAllproducts = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   const pagina = req.params.page;
   GetAllproductDB(id, pagina)
     .then(data => {
@@ -26,7 +26,8 @@ const getAllproducts = (req, res) => {
 };
 
 const createProducts = (req, res) => {
-  const { nombre, unidades, costo, precio, laboratorio, idUsuario } = req.body;
+  const idUsuario = req.usuario.id_usuario;
+  const { nombre, unidades, costo, precio, laboratorio, distribuidor, codeBar } = req.body;
 
   const product = {
     nombre,
@@ -34,15 +35,16 @@ const createProducts = (req, res) => {
     costo,
     precio,
     laboratorio,
-    idUsuario
+    idUsuario,
+    distribuidor,
+    codeBar
   };
-
   if (!isNumber(unidades) || !isNumber(costo) || !isNumber(precio)) {
     res.json({
       success: false,
       message: "no deben de existir letras en algunos campos"
     });
-  } else {
+  } else if (laboratorio && nombre && distribuidor) {
     CreateproductDB(product)
       .then(result => {
         if (result) {
@@ -61,12 +63,16 @@ const createProducts = (req, res) => {
           err
         });
       });
+  } else {
+    res.json({
+      success: false,
+      message: "faltan campos por llenar "
+    });
   }
 };
 
 const deleteProducts = (req, res) => {
-  const id = req.params.id;
-
+  const id = req.params.idproduct;
   DeleteproductDB(id)
     .then(result => {
       res.json({
@@ -83,15 +89,17 @@ const deleteProducts = (req, res) => {
 };
 
 const updateProducts = (req, res) => {
-  const { nombre, unidades, costo, precio, laboratorio, idProduct } = req.body;
-
+  const idUsuario = req.usuario.id_usuario;
+  const { nombre, unidades, costo, precio, laboratorio, idProduct, distribuidor } = req.body;
   const product = {
     nombre,
     unidades,
     costo,
     precio,
     laboratorio,
-    idProduct
+    idProduct,
+    distribuidor,
+    idUsuario
   };
 
   if (!isNumber(precio) || !isNumber(costo) || !isNumber(unidades)) {
@@ -121,7 +129,7 @@ const updateProducts = (req, res) => {
 };
 
 const findProduct = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   const words = req.params.words;
 
   findProductDB(id, words)

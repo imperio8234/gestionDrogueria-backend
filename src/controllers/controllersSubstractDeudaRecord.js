@@ -81,17 +81,16 @@ const createsubtractDeudaRecord = (req, res) => {
     fecha,
     valor
   };
-
   createsubtractDeudaRecordDB(record)
     .then(result => {
-      if (result) {
+      if (result.success) {
         res.json({
           message: "se guardo exitosamente",
           success: true
         });
       } else {
         res.json({
-          message: "error al guardar",
+          message: result.message,
           success: false
         });
       }

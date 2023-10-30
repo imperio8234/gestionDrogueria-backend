@@ -1,7 +1,8 @@
 const { CreatedeudaDB, GetAlldeudaDB, DeletedeudaDB, UpdatedeudaDB, findDeudaDB } = require("../services/deudasServices");
 
 const CreateDeudas = (req, res) => {
-  const { idUsuario, nombre, celular, date } = req.body;
+  const idUsuario = req.usuario.id_usuario;
+  const { nombre, celular, date } = req.body;
   const customer = {
     idUsuario,
     nombre,
@@ -33,7 +34,7 @@ const CreateDeudas = (req, res) => {
     });
 };
 const GetDeudas = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   const page = req.params.page;
   GetAlldeudaDB(id, page)
     .then(result => {
@@ -61,7 +62,7 @@ const GetDeudas = (req, res) => {
 };
 
 const DeletDeudas = (req, res) => {
-  const idCustomer = req.params.idcustomer;
+  const idCustomer = req.params.id;
   DeletedeudaDB(idCustomer).then(e => {
     if (e) {
       res.json({
@@ -107,7 +108,7 @@ const UpdateDeudas = (req, res) => {
 };
 
 const findDeudas = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   const words = req.params.words;
 
   findDeudaDB(id, words)

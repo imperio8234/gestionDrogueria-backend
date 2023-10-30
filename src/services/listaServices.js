@@ -29,11 +29,28 @@ const createListaDB = (producto) => {
             });
         } else {
           // a qui si si hay registros del roducto se suma las cantidades y el valor nuevo
-          conexion.query("update lista set unidades= unidades + ?, valor_total=? where id_producto =?", [unidades, valorTotal, idProducto], (err, row) => {
+          conexion.query("select unidades from productos where id_producto = ?", [idProducto], (err, unidad) => {
             if (err) {
               reject(err);
             } else {
-              resolve({ success: true, message: "agregado" });
+              conexion.query("select unidades from lista where id_producto = ? ", [idProducto], (err, lista) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  // comprobamos si los elementos de la lista exeden los elementos del inventario
+                  if (parseInt(unidad[0].unidades) <= parseInt(lista[0].unidades)) {
+                    resolve({ success: false, message: "no hay existencias del producto" });
+                  } else {
+                    conexion.query("update lista set unidades= unidades + ?, valor_total= unidades * precio  where id_producto =?", [unidades, idProducto], (err, row) => {
+                      if (err) {
+                        reject(err);
+                      } else {
+                        resolve({ success: true, message: "agregado" });
+                      }
+                    });
+                  }
+                }
+              });
             }
           });
         }
@@ -44,14 +61,32 @@ const createListaDB = (producto) => {
 const UpdateListaDB = (producto) => {
   const { idUsuario, idProducto, unidades, valorTotal } = producto;
   return new Promise((resolve, reject) => {
-    conexion.query("update lista set unidades=?, valor_total=? where id_usuario=? and id_producto =?", [unidades, valorTotal, idUsuario, idProducto],
-      (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
+    conexion.query("select unidades from productos where id_producto = ?", [idProducto], (err, unidad) => {
+      if (err) {
+        reject(err);
+      } else {
+        // se verifica si las hay unidades disponibles
+        conexion.query("select unidades from lista where id_producto = ? ", [idProducto], (err, lista) => {
+          if (err) {
+            reject(err);
+          } else {
+            // comprobamos si los elementos de la lista exeden los elementos del inventario
+            if (parseInt(unidad[0].unidades) <= unidades) {
+              resolve({ success: false, message: "no hay existencias" });
+            } else {
+              conexion.query("update lista set unidades=?, valor_total=? where id_usuario=? and id_producto =?", [unidades, valorTotal, idUsuario, idProducto],
+                (err, result) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve({ success: true, result });
+                  }
+                });
+            }
+          }
+        });
+      }
+    });
   });
 };
 const deleteListaDB = (idUsuario, idProducto) => {

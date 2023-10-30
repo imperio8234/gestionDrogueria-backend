@@ -17,7 +17,7 @@ const GetAlldeudaDB = (id, pagina) => {
                 reject(err.message);
               } else {
               // se recojen las identificaciones
-                const idUsuarios = [];
+                const idUsuarios = [0];
                 for (const i in user) {
                   idUsuarios.push(user[i].id_deuda);
                 }
@@ -39,7 +39,7 @@ const GetAlldeudaDB = (id, pagina) => {
                     }
                     const resultValor = valorT.reduce((a, b) => {
                       return a + b;
-                    });
+                    }, 0);
                     resolve({ success: true, data: { data: result, totalDeudas: resultValor }, paginas: pages[0] });
                   }
                 });
@@ -107,6 +107,7 @@ const findDeudaDB = (id, words) => {
     conexion.query("select * from deudas where nombre like ? and id_usuario =? ", [`%${words}%`, id], (err, result) => {
       if (err) {
         reject(err);
+        console.log("error")
       } else {
         if (result <= 0) {
           resolve({ success: false, message: "no se encontraron registros" });

@@ -2,7 +2,8 @@ const { GetAllCustomersDB, CreateCustomersDB, UdateCustomersDB, DeleteCustomersD
 const isNumber = require("../toolsDev/isNumber");
 
 const CreateCustomers = (req, res) => {
-  const { idUsuario, nombre, phoneNumber, date } = req.body;
+  const idUsuario = req.usuario.id_usuario;
+  const { nombre, phoneNumber, date } = req.body;
   const customer = {
     idUsuario,
     nombre,
@@ -41,11 +42,11 @@ const CreateCustomers = (req, res) => {
   }
 };
 const GetCustomers = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   const page = req.params.page;
   GetAllCustomersDB(id, page)
     .then(result => {
-      if (result.data.data.length >= 0) {
+      if (!result.data.data.length <= 0) {
         res.json({
           success: true,
           data: result.data,
@@ -116,9 +117,8 @@ const UpdateCustomers = (req, res) => {
 };
 
 const findCustomers = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   const words = req.params.words;
-  console.log(id, words);
 
   findCustomersDB(id, words)
     .then(result => {

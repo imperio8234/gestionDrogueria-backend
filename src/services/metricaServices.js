@@ -1,149 +1,80 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 const getProductosMetricaDB = (idUsuario) => {
   return new Promise((resolve, reject) => {
-    conexion.query("select * from productos where costo - precio = 0 and id_usuario =?", [idUsuario], (err, result) => {
+    conexion.query("select * from productos where id_usuario =?", [idUsuario], (err, low) => {
       if (err) {
         reject(err.message);
       } else {
-        conexion.query("select * from productos where unidades <= 2 and id_usuario =?", [idUsuario], (err, low) => {
-          if (err) {
-            reject(err.message);
-          } else {
-            resolve({ success: true, data: { estockBajo: low, gananciasCero: result } });
-          }
-        });
+        if (low.length <= 0) {
+          resolve({ success: false, message: "no hay registros" });
+        } else {
+          resolve({ success: true, low });
+        }
       }
     });
   });
 };
 const getcreditosMetricaDB = (idUsuario) => {
   return new Promise((resolve, reject) => {
-    conexion.query("select id_credito from creditos where id_usuario =?", [idUsuario],
-      (err, result) => {
+    conexion.query("select * from creditos where id_usuario =?", [idUsuario],
+      (err, clientesdb) => {
         if (err) {
           reject(err);
         } else {
-          // console.log("este es el conjunto entrante", result)
-          const conjunto = [];
-          for (const i in result) {
-            conjunto.push(result[i].id_credito);
-          }
-          // unificar los datos con los valores de cada credito registrado
-          conexion.query(`select id_credito, sum(valor) as total 
-          from(
-            select id_credito, valor from suma_credito 
-            union all 
-            select id_credito, valor from abonos_credito
-            ) as id_credito 
-            where id_credito in (${conjunto}) 
-            group by id_credito 
-            ORDER BY total desc 
-            limit 7`, (err, obj) => {
-            if (err) {
-              reject(err);
-            } else {
-              const resultado = obj.map(obj1 => {
-                const obj2 = result.find(obj2 => obj2.id_credito === obj1.id_credito);
-                return { ...obj1, ...obj2 };
-              });
-
-              //  pedir los datos de cada credito y sumarlo en un total
-              conexion.query(`select id_credito, sum(valor) as total 
-              from(
-                select id_credito, valor from suma_credito 
-                union all 
-                select id_credito, valor from abonos_credito
-                ) as id_credito 
-                where id_credito in (${conjunto}) 
-                group by id_credito  
-                `, (err, sum) => {
+          // verificar si hay clientes resgistrados
+          if (clientesdb.length <= 0) {
+            resolve({ success: false });
+          } else {
+            const clientes = [];
+            clientesdb.map(cliente => clientes.push(cliente.id_credito));
+            conexion.query(`select * from suma_credito where id_credito in (${clientes})`,
+              (err, sumas) => {
                 if (err) {
                   reject(err);
                 } else {
-                  //  recorrer el resultado de la peticcion
-                  const total = [];
-                  for (const i in sum) {
-                    total.push(sum[i].total);
-                  }
-                  //  sumar todos los resultados
-                  const totalSuma = total.reduce((a, b) => {
-                    return a + b;
-                  });
-
-                  //  enviar todos los resultados
-                  resolve({ success: true, creditos: resultado, total: totalSuma });
+                  conexion.query(`select * from abonos_credito where id_credito in (${clientes})`,
+                    (err, abonos) => {
+                      if (err) {
+                        reject(err);
+                      } else {
+                        resolve({ success: true, abonos, sumas, clientesdb });
+                      }
+                    });
                 }
               });
-            }
-          });
+          }
         }
       });
   });
 };
 const getdeudasMetricaDB = (idUsuario) => {
   return new Promise((resolve, reject) => {
-    conexion.query("select id_deuda from deudas where id_usuario =?", [idUsuario],
-      (err, result) => {
+    conexion.query("select * from deudas where id_usuario =?", [idUsuario],
+      (err, deudasdb) => {
         if (err) {
-          reject(err.message);
+          reject(err);
         } else {
-          const conjunto = [];
-          for (const i in result) {
-            conjunto.push(result[i].id_deuda);
-          };
-
-          // se confirma si existen datos
-          if (conjunto.length <= 0) {
-            resolve({ success: false, message: "no existen datos que mostrar" });
+          // verificar si hay clientes resgistrados
+          if (deudasdb.length <= 0) {
+            resolve({ success: false });
           } else {
-            // unificar los datos con los valores de cada credito registrado
-            conexion.query(`select id_deuda, sum(valor) as total 
-              from(
-                select id_deuda, valor from suma_deuda 
-                union all 
-                select id_deuda, valor from abonos
-                ) as id_deuda 
-                where id_deuda in (${conjunto}) 
-                group by id_deuda 
-                ORDER BY total desc 
-                limit 7`, (err, obj) => {
-              if (err) {
-                reject(err.message);
-              } else {
-                const resultado = obj.map(obj1 => {
-                  const obj2 = result.find(obj2 => obj2.id_deuda === obj1.id_deuda);
-                  return { ...obj1, ...obj2 };
-                });
-
-                //  pedir los datos de cada credito y sumarlo en un total
-                conexion.query(`select id_deuda, sum(valor) as total 
-                  from(
-                    select id_deuda, valor from suma_deuda 
-                    union all 
-                    select id_deuda, valor from abonos
-                    ) as id_deuda 
-                    where id_deuda in (${conjunto}) 
-                    group by id_deuda  
-                    `, (err, sum) => {
-                  if (err) {
-                    reject(err.message);
-                  } else {
-                  //  recorrer el resultado de la peticcion
-                    const total = [];
-                    for (const i in sum) {
-                      total.push(sum[i].total);
-                    }
-                    //  sumar todos los resultados
-                    const totalSuma = total.reduce((a, b) => {
-                      return a + b;
+            const deudas = [];
+            deudasdb.map(deuda => deudas.push(deuda.id_credito));
+            conexion.query(`select * from suma_deuda where id_credito in (${deudas})`,
+              (err, sumas) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  conexion.query(`select * from abonos where id_credito in (${deudas})`,
+                    (err, abonos) => {
+                      if (err) {
+                        reject(err);
+                      } else {
+                        resolve({ success: true, abonos, sumas, deudasdb });
+                      }
                     });
-
-                    //  enviar todos los resultados
-                    resolve({ success: true, deudas: resultado, total: totalSuma });
-                  }
-                });
-              }
-            });
+                }
+              });
           }
         }
       });

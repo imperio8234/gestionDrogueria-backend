@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const { getAllproducts, createProducts, updateProducts, deleteProducts, findProduct } = require("../controllers/controllerProduct");
-const Activation = require("../toolsDev/midelware/verifyActivation");
 const verify = require("../toolsDev/midelware/verifyToken");
+const verifyActivation = require("../toolsDev/midelware/verifyActivation");
 
-router.get("/:id/:page", verify, Activation, getAllproducts);
-router.get("/buscar/:id/:words", findProduct);
-router.post("/", createProducts);
-router.put("/", updateProducts);
-router.delete("/:idproduct", deleteProducts);
+router.get("/:page", verify, getAllproducts);
+router.get("/buscar/:words", verify, findProduct);
+router.post("/", verify, verifyActivation, createProducts);
+router.put("/", verify, verifyActivation, updateProducts);
+router.delete("/:idproduct", verify, deleteProducts);
 module.exports = router;

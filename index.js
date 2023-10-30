@@ -1,21 +1,23 @@
 // IMPORTACIONES
 const Express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 // VARIABLES DE ENTORNO
-const DB_PORT = process.env.DB_PORT || 5000;
-/* const corsOptions={
-    origin: "http://127.0.0.1:5500",
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-}; */
+const DB_PORT = process.env.DB_PORT || 2000;
+const corsOptions = {
+  origin: "http://localhost:5173",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+};
 
 // EJECUCIONES
 
 const app = Express();
 // MIDELWARES
+app.use(cookieParser());
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(corsOptions));
 
 // RUTAS
 app.use("/api/v1", require("./src/api-v1-routes/index"));

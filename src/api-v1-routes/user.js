@@ -5,15 +5,20 @@ const {
   createUsers,
   deleteUsers,
   authenticateUser,
-  recoverPassword
+  recoverPassword,
+  getUser
 } = require("../controllers/controllersUser");
 const router = express.Router();
 
-router.get("/", getAllUsers);
-router.put("/", updateUsers);
+const verify = require("../toolsDev/midelware/verifyToken");
+const verifyActivation = require("../toolsDev/midelware/verifyActivation");
+
+router.get("/", verify, getUser);
+router.get("/all", verify, getAllUsers);
+router.put("/", verify, verifyActivation, updateUsers);
 router.put("/password", recoverPassword);
 router.post("/aut", authenticateUser);
 router.post("/", createUsers);
-router.delete("/:id", deleteUsers);
+router.delete("/:id", verify, deleteUsers);
 
 module.exports = router;

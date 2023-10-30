@@ -45,15 +45,22 @@ const UdateRecordDB = (data) => {
 };
 
 const CreateRecordDB = (record) => {
-  const { fecha, producto, valor, idCredito } = record;
-
   return new Promise((resolve, reject) => {
-    conexion.query("INSERT INTO suma_credito SET ?", [{ fecha, producto, valor, id_credito: idCredito }], (err, row) => {
-      if (err) {
-        reject(err.message);
-      } else {
-        resolve(true);
-      }
+    record.map(producto => {
+      return conexion.query("insert into suma_credito set id_producto =?, id_venta =?, producto =?, unidades =?, valor =?, laboratorio=?, id_usuario=?, precio=?, id_credito =?, fecha = ?", [producto.id_producto, producto.idVenta, producto.nombre, producto.unidades, producto.valor_total, producto.laboratorio, producto.id_usuario, producto.precio, producto.idCredito, producto.fecha], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          // modificar el inventario
+          conexion.query("update productos set unidades = unidades - ? where id_producto =?", [producto.unidades, producto.id_producto], (err, actualizado) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ message: "se realizo la venta correctamente", success: true, actualizado });
+            }
+          });
+        }
+      });
     });
   }
   );

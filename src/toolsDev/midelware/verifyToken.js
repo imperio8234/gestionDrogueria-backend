@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const verify = (req, res, next) => {
-  const token = req.headers.authorization;
+  // const token = req.headers.authorization;
+  const token = "Bearer" + " " + req.cookies.aut;
   if (!token) {
     return res.status(401).json({ message: "no hay token" });
   }
