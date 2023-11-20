@@ -11,6 +11,8 @@ CREATE TABLE administrador(
     activo BOOLEAN DEFAULT FALSE,
     fecha VARCHAR(500),
     clave INT,
+    inicio VARCHAR(500),
+    nombreNegocio VARCHAR(500),
     PRIMARY KEY (id_usuario)
 );
 
@@ -22,6 +24,7 @@ CREATE TABLE productos(
     costo INT NOT NULL,
     precio INT NOT NULL,
     laboratorio VARCHAR(250),
+    porcentageIva INT,
     id_usuario INT NOT NULL,
     codeBar BIGINT,
     PRIMARY KEY (id_producto),
@@ -37,6 +40,7 @@ CREATE TABLE productos_historial(
     precio INT NOT NULL,
     laboratorio VARCHAR(250),
     id_usuario INT NOT NULL,
+    porcentageIva INT,
     fecha VARCHAR(500),
     codeBar BIGINT,
     PRIMARY KEY (id_producto),
@@ -115,6 +119,8 @@ CREATE TABLE ventas(
     id_venta INT NOT NULL AUTO_INCREMENT,
     fecha VARCHAR(300) NOT NULL,
     total_venta INT NOT NULL,
+    pago_con BIGINT,
+    devolucion BIGINT,
     PRIMARY KEY (id_venta),
     FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
@@ -127,6 +133,7 @@ CREATE TABLE productos_vendidos(
     cantidad INT NOT NULL,
     laboratorio VARCHAR(500),
     id_usuario INT,
+    porcentageIva  INT,
     valor_total INT,
     valor INT NOT NULL,
     PRIMARY KEY (id_producto_vendido),
@@ -163,7 +170,21 @@ CREATE TABLE lista (
     unidades INT,
     precio INT,
     valor_total INT,
+    porcentageIva INT,
     laboratorio VARCHAR(500),
     PRIMARY KEY (id_producto),
     CONSTRAINT fk_lista FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS gastos (
+    id_gasto int not null AUTO_INCREMENT primary KEY,
+    id_usuario int not null,
+    descripcion VARCHAR(1000),
+    valor_gasto BIGINT not null,
+    categoria VARCHAR(100) NOT NULL,
+    fecha VARCHAR(500),
+    CONSTRAINT fk_gasto FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario)
+    ON DELETE CASCADE
+);
+
+

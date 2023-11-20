@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 // VARIABLES DE ENTORNO
 const DB_PORT = process.env.DB_PORT || 2000;
 const corsOptions = {
-  origin: "https://master--glittery-alfajores-f1e39d.netlify.app",
+  origin: "http://localhost:5173",
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 };

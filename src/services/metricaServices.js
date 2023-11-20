@@ -81,8 +81,34 @@ const getdeudasMetricaDB = (idUsuario) => {
   });
 };
 
+const getCompras = (usuario) => {
+  return new Promise((resolve, reject) => {
+    conexion.query("select distinct fecha, distribuidor from productos_historial where id_usuario =?", [usuario], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
+const filterCompras = () => {
+  return new Promise((resolve, reject) => {
+    conexion.query("select * from productos_historial where fecha = ? and id_usuario = ? and distribuidor = ?", [], (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  });
+};
+
 module.exports = {
   getProductosMetricaDB,
   getcreditosMetricaDB,
-  getdeudasMetricaDB
+  getdeudasMetricaDB,
+  getCompras,
+  filterCompras
 };

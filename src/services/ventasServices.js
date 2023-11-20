@@ -4,12 +4,14 @@ const crearVentaDB = (venta, productosVendidos) => {
   return new Promise((resolve, reject) => {
     conexion.query("insert into ventas set id_usuario = ?, id_venta = ?, fecha = ?, total_venta = ?, pago_con =?, devolucion =?", [idUsuario, idVenta, fecha, valorTotal, pagaCon, devolucion], (err, result) => {
       if (err) {
+        console.log(err)
         reject(err.message);
       } else {
         productosVendidos.map(producto => {
-          return conexion.query("insert into productos_vendidos set id_producto_vendido=?, id_venta =?, producto =?, cantidad =?, valor =?, laboratorio=?, valor_total=?, id_usuario=?", [producto.id_producto, producto.idVenta, producto.nombre, producto.unidades, producto.precio, producto.laboratorio, producto.valor_total, idUsuario], (err, row) => {
+          return conexion.query("insert into productos_vendidos set id_venta =?, producto =?, cantidad =?, valor =?, laboratorio=?, valor_total=?, id_usuario=?, porcentageIva=?, id_producto=? ", [producto.idVenta, producto.nombre, producto.unidades, producto.precio, producto.laboratorio, producto.valor_total, idUsuario, producto.porcentageIva, producto.id_producto], (err, row) => {
             if (err) {
               reject(err);
+              console.log(err)
             }
             // modificar el inventario
             conexion.query("update productos set unidades = unidades - ? where id_producto =?", [producto.unidades, producto.id_producto], (err, actualizado) => {
@@ -109,13 +111,23 @@ const eliminarVentas = (idventa) => {
 };
 const buscarProductoDB = (producto, idUsuario) => {
   return new Promise((resolve, reject) => {
-    conexion.query("select * from productos where nombre  like ? or codeBar = ? and id_usuario =?  ", [`%${producto}%`, producto, idUsuario], (err, result) => {
-      if (err) {
-        reject(err.message);
-      } else {
-        resolve(result);
-      }
-    });
+    if (/^\d+$/.test(producto)) {
+      conexion.query("select * from productos where codeBar = ? and id_usuario =? and unidades > 0 ", [producto, idUsuario], (err, result) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(result);
+        }
+      });
+    } else {
+      conexion.query("select * from productos where nombre  like ?  and id_usuario =? and unidades > 0 ", [`%${producto}%`, idUsuario], (err, result) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(result);
+        }
+      });
+    }
   });
 };
 module.exports = {

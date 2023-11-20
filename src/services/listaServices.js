@@ -11,7 +11,7 @@ const getListaDB = (idUsuario) => {
   });
 };
 const createListaDB = (producto) => {
-  const { idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio } = producto;
+  const { idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio, porcentageIva } = producto;
   return new Promise((resolve, reject) => {
     conexion.query("select id_producto from lista where id_producto = ?", [idProducto], (err, id) => {
       if (err) {
@@ -19,8 +19,8 @@ const createListaDB = (producto) => {
       } else {
         // evaluamos si existen productos en la lista y si no hay se agregan si si hay se suma la cantidad
         if (id.length <= 0) {
-          conexion.query("insert into lista set id_usuario =?, nombre =?, unidades=?, precio=?, valor_total=?, id_producto=?, laboratorio=? ",
-            [idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio], (err, result) => {
+          conexion.query("insert into lista set id_usuario =?, nombre =?, unidades=?, precio=?, valor_total=?, id_producto=?, laboratorio=?, porcentageIva=?",
+            [idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio, porcentageIva], (err, result) => {
               if (err) {
                 reject(err);
               } else {
@@ -59,7 +59,7 @@ const createListaDB = (producto) => {
   });
 };
 const UpdateListaDB = (producto) => {
-  const { idUsuario, idProducto, unidades, valorTotal } = producto;
+  const { idUsuario, idProducto, unidades, valorTotal, porcentageIva } = producto;
   return new Promise((resolve, reject) => {
     conexion.query("select unidades from productos where id_producto = ?", [idProducto], (err, unidad) => {
       if (err) {
@@ -74,7 +74,7 @@ const UpdateListaDB = (producto) => {
             if (parseInt(unidad[0].unidades) <= unidades) {
               resolve({ success: false, message: "no hay existencias" });
             } else {
-              conexion.query("update lista set unidades=?, valor_total=? where id_usuario=? and id_producto =?", [unidades, valorTotal, idUsuario, idProducto],
+              conexion.query("update lista set unidades=?, valor_total=? where id_usuario=? and id_producto =?, porcentageIva=?", [unidades, valorTotal, idUsuario, idProducto, porcentageIva],
                 (err, result) => {
                   if (err) {
                     reject(err);

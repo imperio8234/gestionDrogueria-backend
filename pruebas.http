@@ -374,3 +374,17 @@ DELETE http://localhost:2000/api/v1/lista/125 HTTP/1.1
 
 #### eliminar toda la lista
 DELETE http://localhost:2000/api/v1/lista/all HTTP/1.1
+
+
+### rutas api gastos 
+
+POST http://localhost:2000/api/v1/gastos/creargastos HTTP/1.1
+Content-Type: application/json
+
+{
+    "idGasto" : "123",
+    "idUsuario" : "2",
+    "descripcion" : "hola a todos",
+    "valorGasto" : "12222",
+    "fecha" : "8/09/2021"
+}

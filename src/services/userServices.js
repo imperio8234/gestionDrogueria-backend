@@ -33,7 +33,7 @@ const getUserDB = (idUsuario) => {
   });
 };
 const createUsersDB = (user) => {
-  const { nombre, correo, celular, pass, inicio, fecha, activo, clave } = user;
+  const { nombre, correo, celular, pass, inicio, fecha, activo, clave, negocio } = user;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM administrador WHERE correo=?", [correo], (err, result) => {
       if (err) {
@@ -42,7 +42,7 @@ const createUsersDB = (user) => {
         if (!result.length <= 0) {
           resolve({ message: "el usuario ya se encuentra registrado con este correo", success: false });
         } else {
-          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass, inicio, fecha, activo, clave }], (err, row) => {
+          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass, inicio, fecha, activo, clave, nombreNegocio: negocio }], (err, row) => {
             if (err) {
               reject(err);
             } else {
@@ -55,9 +55,9 @@ const createUsersDB = (user) => {
   });
 };
 const updateUsersDB = (user) => {
-  const { nombre, correo, celular, idUsuario } = user;
+  const { nombre, correo, celular, idUsuario, negocio } = user;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=? WHERE id_usuario =?", [nombre, correo, celular, idUsuario], (err, row) => {
+    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=?, nombreNegocio = ? WHERE id_usuario =?", [nombre, correo, celular, negocio, idUsuario], (err, row) => {
       if (err) {
         reject(err);
       } else {

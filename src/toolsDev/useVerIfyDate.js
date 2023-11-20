@@ -11,5 +11,4 @@ const useverifyDate = (date) => {
   const diasRestantes = Math.ceil((fechaVencimiento - fechaActual) / (1000 * 60 * 60 * 24));
   return diasRestantes;
 };
-
 module.exports = useverifyDate;

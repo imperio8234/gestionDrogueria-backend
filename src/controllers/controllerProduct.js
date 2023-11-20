@@ -27,7 +27,7 @@ const getAllproducts = (req, res) => {
 
 const createProducts = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { nombre, unidades, costo, precio, laboratorio, distribuidor, codeBar } = req.body;
+  const { nombre, unidades, costo, precio, laboratorio, distribuidor, codeBar, porcentageIva } = req.body;
 
   const product = {
     nombre,
@@ -37,7 +37,8 @@ const createProducts = (req, res) => {
     laboratorio,
     idUsuario,
     distribuidor,
-    codeBar
+    codeBar,
+    porcentageIva
   };
   if (!isNumber(unidades) || !isNumber(costo) || !isNumber(precio)) {
     res.json({
@@ -90,7 +91,7 @@ const deleteProducts = (req, res) => {
 
 const updateProducts = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { nombre, unidades, costo, precio, laboratorio, idProduct, distribuidor } = req.body;
+  const { nombre, unidades, costo, precio, laboratorio, idProduct, distribuidor, porcentageIva } = req.body;
   const product = {
     nombre,
     unidades,
@@ -99,7 +100,8 @@ const updateProducts = (req, res) => {
     laboratorio,
     idProduct,
     distribuidor,
-    idUsuario
+    idUsuario,
+    porcentageIva
   };
 
   if (!isNumber(precio) || !isNumber(costo) || !isNumber(unidades)) {

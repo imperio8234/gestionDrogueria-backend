@@ -81,7 +81,7 @@ const CreateCustomersDB = (customer) => {
   const { idUsuario, nombre, phoneNumber, date } = customer;
 
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM creditos WHERE nombre =?", [nombre], (err, result) => {
+    conexion.query("SELECT * FROM creditos WHERE nombre =? and id_usuario =?", [nombre, idUsuario], (err, result) => {
       if (err) {
         reject(err);
       } else {

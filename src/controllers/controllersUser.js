@@ -58,7 +58,7 @@ const getUser = (req, res) => {
     });
 };
 const createUsers = (req, res) => {
-  const { nombre, correo, celular, contraseña } = req.body;
+  const { nombre, correo, celular, contraseña, negocio } = req.body;
   // contraseña encriptada
   const pass = bcrypt.hashSync(contraseña, 8);
 
@@ -70,7 +70,8 @@ const createUsers = (req, res) => {
     activo: true,
     fecha: new Date().toLocaleDateString(),
     inicio: new Date().getDate(),
-    clave: random(1000, 9000)
+    clave: random(1000, 9000),
+    negocio
   };
 
   if (!isNumber(celular) || celular.length !== 10) {
@@ -116,12 +117,13 @@ const createUsers = (req, res) => {
 };
 const updateUsers = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { nombre, correo, celular } = req.body;
+  const { nombre, correo, celular, negocio } = req.body;
   const usuario = {
     nombre,
     correo,
     celular,
-    idUsuario
+    idUsuario,
+    negocio
   };
   updateUsersDB(usuario)
     .then(result => {
@@ -188,7 +190,9 @@ const authenticateUser = (req, res) => {
             nombre: result.data[0].nombre,
             activo: result.data[0].activo,
             fecha: result.data[0].fecha,
-            inicio: result.data[0].inicio
+            inicio: result.data[0].inicio,
+            nombreNegocio: result.data[0].nombreNegocio,
+            celular: result.data[0].celular
           };
 
           // fecha

@@ -54,7 +54,7 @@ const GetCustomers = (req, res) => {
         });
       } else {
         res.json({
-          message: "no hay clentes registrados",
+          message: "no hay clientes registrados",
           success: false
         });
       }

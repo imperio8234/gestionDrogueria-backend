@@ -31,9 +31,9 @@ const DeleteproductDB = (id) => {
 };
 
 const UpdateproductDB = (updateProduct) => {
-  const { nombre, costo, precio, laboratorio, unidades, idProduct, distribuidor, idUsuario } = updateProduct;
+  const { nombre, costo, precio, laboratorio, unidades, idProduct, distribuidor, idUsuario, porcentageIva } = updateProduct;
   return new Promise((resolve, reject) => {
-    conexion.query("insert into productos_historial set ? ", [{ nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor }], (err, resultado) => {
+    conexion.query("insert into productos_historial set ? ", [{ nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor, porcentageIva }], (err, resultado) => {
       if (err) {
         reject(err);
       } else {
@@ -50,9 +50,9 @@ const UpdateproductDB = (updateProduct) => {
 };
 
 const CreateproductDB = (customer) => {
-  const { nombre, idUsuario, costo, precio, laboratorio, unidades, distribuidor, codeBar } = customer;
+  const { nombre, idUsuario, costo, precio, laboratorio, unidades, distribuidor, codeBar, porcentageIva } = customer;
   return new Promise((resolve, reject) => {
-    conexion.query("insert into productos_historial set ? ", [{ codeBar: parseInt(codeBar), nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor }], (err, rsultado) => {
+    conexion.query("insert into productos_historial set ? ", [{ codeBar: parseInt(codeBar), nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor, porcentageIva }], (err, rsultado) => {
       if (err) {
         reject(err);
       } else {
@@ -63,7 +63,7 @@ const CreateproductDB = (customer) => {
             if (!result.length <= 0) {
               resolve(false);
             } else {
-              conexion.query("INSERT INTO productos SET ?", [{ codeBar: parseInt(codeBar), nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, distribuidor }], (err, row) => {
+              conexion.query("INSERT INTO productos SET ?", [{ codeBar: parseInt(codeBar), nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, distribuidor, porcentageIva }], (err, row) => {
                 if (err) {
                   reject(err.message);
                 } else {

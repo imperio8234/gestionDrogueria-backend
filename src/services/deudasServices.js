@@ -91,6 +91,7 @@ const CreatedeudaDB = (customer) => {
         } else {
           conexion.query("INSERT INTO deudas SET ?", [{ nombre, celular, id_usuario: idUsuario, fecha: date }], (err, row) => {
             if (err) {
+              console.log(err)
               reject(err.message);
             } else {
               resolve(true);

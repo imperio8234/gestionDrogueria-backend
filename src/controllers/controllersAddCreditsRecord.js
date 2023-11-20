@@ -3,28 +3,35 @@ const { GetAllRecordDB, CreateRecordDB, UdateRecordDB, DeleteRecordDB } = requir
 
 const CreateRecord = (req, res) => {
   const record = req.body;
-  CreateRecordDB(record.productosVendidos)
-    .then(result => {
-      if (result.success) {
-        res.json({
-          message: "se guardo exitosamente",
-          success: true
-        });
-      } else {
-        res.json({
-          message: "error al guardar",
-          success: false
-        });
-      }
-    })
-    .catch(err => {
-      if (err) {
-        res.json({
-          message: err,
-          success: false
-        });
-      }
+  if (!record.productosVendidos[0].idCredito) {
+    res.json({
+      success: false,
+      message: "no existe registro"
     });
+  } else {
+    CreateRecordDB(record.productosVendidos)
+      .then(result => {
+        if (result.success) {
+          res.json({
+            message: "se guardo exitosamente",
+            success: true
+          });
+        } else {
+          res.json({
+            message: "error al guardar",
+            success: false
+          });
+        }
+      })
+      .catch(err => {
+        if (err) {
+          res.json({
+            message: err,
+            success: false
+          });
+        }
+      });
+  }
 };
 const GetRecord = (req, res) => {
   const idCredit = req.params.id;

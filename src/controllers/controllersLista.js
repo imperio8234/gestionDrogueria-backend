@@ -35,7 +35,8 @@ const createLista = (req, res) => {
     precio: item.precio,
     unidades: item.unidades,
     valorTotal: item.valorTotal,
-    laboratorio: item.laboratorio
+    laboratorio: item.laboratorio,
+    porcentageIva: item.porcentageIva
   };
   createListaDB(producto)
     .then(result => {
@@ -68,7 +69,8 @@ const updateLista = (req, res) => {
     idUsuario,
     idProducto: item.id_producto,
     unidades: item.unidades,
-    valorTotal: item.valorTotal
+    valorTotal: item.valorTotal,
+    porcentageIva: item.porcentageIva
   };
   UpdateListaDB(producto)
     .then(result => {
