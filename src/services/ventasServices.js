@@ -4,14 +4,12 @@ const crearVentaDB = (venta, productosVendidos) => {
   return new Promise((resolve, reject) => {
     conexion.query("insert into ventas set id_usuario = ?, id_venta = ?, fecha = ?, total_venta = ?, pago_con =?, devolucion =?", [idUsuario, idVenta, fecha, valorTotal, pagaCon, devolucion], (err, result) => {
       if (err) {
-        console.log(err)
         reject(err.message);
       } else {
         productosVendidos.map(producto => {
-          return conexion.query("insert into productos_vendidos set id_venta =?, producto =?, cantidad =?, valor =?, laboratorio=?, valor_total=?, id_usuario=?, porcentageIva=?, id_producto=? ", [producto.idVenta, producto.nombre, producto.unidades, producto.precio, producto.laboratorio, producto.valor_total, idUsuario, producto.porcentageIva, producto.id_producto], (err, row) => {
+          return conexion.query("insert into productos_vendidos set id_venta =?, producto =?, cantidad =?, valor =?, laboratorio=?, valor_total=?, id_usuario=?, porcentageIva=?, id_producto=?, costo_un=?", [producto.idVenta, producto.nombre, producto.unidades, producto.precio, producto.laboratorio, producto.valor_total, idUsuario, producto.porcentageIva, producto.id_producto, producto.costo_un], (err, row) => {
             if (err) {
               reject(err);
-              console.log(err)
             }
             // modificar el inventario
             conexion.query("update productos set unidades = unidades - ? where id_producto =?", [producto.unidades, producto.id_producto], (err, actualizado) => {
@@ -51,10 +49,10 @@ const getVentasDB = (id, pagina, fecha) => {
     });
   });
 };
-const getAllVentasDB = (id, pagina) => {
+const getAllVentasDB = (id, pagina, fecha) => {
   const paginas = (pagina - 1) * 50;
   return new Promise((resolve, reject) => {
-    conexion.query("select fecha from ventas where id_usuario = ? limit 50 offset ?", [id, paginas], (err, result) => {
+    conexion.query(`select * from ventas where id_usuario = ? and date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${fecha}) order by fecha DESC limit 50 offset ?`, [id, paginas], (err, result) => {
       if (err) {
         reject(err);
       } else {

@@ -34,13 +34,23 @@ const CreateDeudas = (req, res) => {
     });
 };
 const GetDeudas = (req, res) => {
-  const id = req.usuario.id_usuario;
+  const idUsuario = req.usuario.id_usuario;
   const page = req.params.page;
-  GetAlldeudaDB(id, page)
+  GetAlldeudaDB(idUsuario, page)
     .then(result => {
       if (!result.data.data.length <= 0) {
+        const data = result.data.data;
+        const saldo = result.data.saldoPendiente;
+
+        const newData = data.map((item) => {
+          const saldoPe = saldo.find(saldo => saldo.id_deuda === item.id_deuda);
+
+          item.saldoPendiente = saldoPe ? parseInt(saldoPe.total_abonos) : 0;
+          return { ...item };
+        });
+
         res.json({
-          data: result.data,
+          data: newData,
           paginas: result.paginas,
           success: true
         });

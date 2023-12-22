@@ -3,11 +3,11 @@ const conexion = require("../toolsDev/midelware/bd_conection");
 const GetAllDeudaDB = (id, pagina) => {
   const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM suma_deuda WHERE id_deuda =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
+    conexion.query("SELECT * FROM productos_historial WHERE id_deuda =?  order by id_compra DESC LIMIT 20 OFFSET ?", [id, page], (err, result) => {
       if (err) {
         reject(err);
       }
-      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM suma_deuda", (err, pages) => {
+      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM productos_historial", (err, pages) => {
         if (err) {
           reject(err);
         } else {

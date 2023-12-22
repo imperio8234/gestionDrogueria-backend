@@ -388,3 +388,24 @@ Content-Type: application/json
     "valorGasto" : "12222",
     "fecha" : "8/09/2021"
 }
+
+### optener gastos
+GET http://localhost:2000/api/v1/gastos/optenergastos HTTP/1.1
+
+
+### optener gastos detalles
+GET http://localhost:2000/api/v1/gastos/detallesgastos/ HTTP/1.1
+
+
+### eliminar gastos 
+GET http://localhost:2000/api/v1/gastos/eliminargastos/212 HTTP/1.1
+
+### actualizar 
+GET http://localhost:2000/api/v1/gastos/modificargastos HTTP/1.1
+
+{
+
+}
+
+### optener baance 
+GET http://localhost:2000/api/v1/metrica/balance HTTP/1.1

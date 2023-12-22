@@ -11,7 +11,7 @@ const getListaDB = (idUsuario) => {
   });
 };
 const createListaDB = (producto) => {
-  const { idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio, porcentageIva } = producto;
+  const { idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio, porcentageIva, costo } = producto;
   return new Promise((resolve, reject) => {
     conexion.query("select id_producto from lista where id_producto = ?", [idProducto], (err, id) => {
       if (err) {
@@ -19,8 +19,8 @@ const createListaDB = (producto) => {
       } else {
         // evaluamos si existen productos en la lista y si no hay se agregan si si hay se suma la cantidad
         if (id.length <= 0) {
-          conexion.query("insert into lista set id_usuario =?, nombre =?, unidades=?, precio=?, valor_total=?, id_producto=?, laboratorio=?, porcentageIva=?",
-            [idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio, porcentageIva], (err, result) => {
+          conexion.query("insert into lista set id_usuario =?, nombre =?, unidades=?, precio=?, valor_total=?, id_producto=?, laboratorio=?, porcentageIva=?, costo_un =?",
+            [idUsuario, nombre, unidades, precio, valorTotal, idProducto, laboratorio, porcentageIva, costo], (err, result) => {
               if (err) {
                 reject(err);
               } else {

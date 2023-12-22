@@ -1,9 +1,9 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 
-const GetAlldeudaDB = (id, pagina) => {
+const GetAlldeudaDB = (idUsuario, pagina) => {
   const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM deudas WHERE id_usuario =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
+    conexion.query("SELECT * FROM deudas WHERE id_usuario =? LIMIT 20 OFFSET ?", [idUsuario, page], (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -12,37 +12,34 @@ const GetAlldeudaDB = (id, pagina) => {
             reject(err);
           } else {
             // calcular el valor total de cada deuda
-            conexion.query("select id_deuda from deudas where id_usuario = ?", [id], (err, user) => {
+            // se recojen las identificaciones
+            conexion.query(`
+             SELECT
+               distinct ph.id_deuda,
+               (IFNULL(sum(ph.costo * ph.unidades) , 0) -  IFNULL(abonos_suma.saldo_pendiente, 0))  total_abonos
+                 FROM
+                   productos_historial ph
+                 LEFT JOIN (
+             SELECT
+               id_deuda,
+               SUM(valor)  saldo_pendiente
+             FROM
+               abonos
+             WHERE
+               id_usuario = ?
+             GROUP BY
+               id_deuda
+               ) abonos_suma ON ph.id_deuda = abonos_suma.id_deuda
+               WHERE
+                   ph.id_usuario = ?
+               AND ph.metodo_pago = "compra a credito"
+               group by id_deuda
+                 `, [idUsuario, idUsuario], (err, valorTotal) => {
               if (err) {
                 reject(err.message);
               } else {
-              // se recojen las identificaciones
-                const idUsuarios = [0];
-                for (const i in user) {
-                  idUsuarios.push(user[i].id_deuda);
-                }
-                conexion.query(`select id_deuda, sum(valor) as total
-                from(
-                select id_deuda, valor from suma_deuda
-                union all
-                select id_deuda, valor from abonos
-                )as id_deuda
-                where id_deuda in (${idUsuarios})
-                group by id_deuda`, (err, valorTotal) => {
-                  if (err) {
-                    reject(err.message);
-                  } else {
-                    // sumatoria de todos los valores
-                    const valorT = [];
-                    for (const i in valorTotal) {
-                      valorT.push(valorTotal[i].total);
-                    }
-                    const resultValor = valorT.reduce((a, b) => {
-                      return a + b;
-                    }, 0);
-                    resolve({ success: true, data: { data: result, totalDeudas: resultValor }, paginas: pages[0] });
-                  }
-                });
+                // sumatoria de todos los valores
+                resolve({ success: true, data: { data: result, saldoPendiente: valorTotal }, paginas: pages[0] });
               }
             });
           }
@@ -91,7 +88,6 @@ const CreatedeudaDB = (customer) => {
         } else {
           conexion.query("INSERT INTO deudas SET ?", [{ nombre, celular, id_usuario: idUsuario, fecha: date }], (err, row) => {
             if (err) {
-              console.log(err)
               reject(err.message);
             } else {
               resolve(true);
@@ -108,7 +104,6 @@ const findDeudaDB = (id, words) => {
     conexion.query("select * from deudas where nombre like ? and id_usuario =? ", [`%${words}%`, id], (err, result) => {
       if (err) {
         reject(err);
-        console.log("error")
       } else {
         if (result <= 0) {
           resolve({ success: false, message: "no se encontraron registros" });

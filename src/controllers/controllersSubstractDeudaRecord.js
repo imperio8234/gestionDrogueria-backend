@@ -10,7 +10,7 @@ const GetAllsubtractDeudaRecord = (req, res) => {
   const page = req.params.page;
   GetAllsubtractDeudaRecordDB(idDeuda, page)
     .then(result => {
-      if (!result.length <= 0) {
+      if (result.success) {
         res.json({
           success: true,
           data: result
@@ -75,12 +75,21 @@ const deletesubtractDeudaRecord = (req, res) => {
   });
 };
 const createsubtractDeudaRecord = (req, res) => {
-  const { idDeudao, fecha, valor } = req.body;
+  const idUsuario = req.usuario.id_usuario;
+  const { idDeuda, fecha, valor } = req.body;
   const record = {
-    idDeudao,
+    idUsuario,
+    idDeuda,
     fecha,
     valor
   };
+  if (valor < 0) {
+    res.status(401).json({
+      success: false,
+      message: "existen valores negativos"
+    });
+    return;
+  }
   createsubtractDeudaRecordDB(record)
     .then(result => {
       if (result.success) {

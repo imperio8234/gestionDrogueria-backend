@@ -3,7 +3,7 @@ const conexion = require("../toolsDev/midelware/bd_conection");
 const GetAllsubtractDeudaRecordDB = (id, pagina) => {
   const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM abonos WHERE id_deuda =? LIMIT 20 OFFSET ?", [id, page], (err, result) => {
+    conexion.query("SELECT * FROM abonos WHERE id_deuda =? order by id_abono DESC LIMIT 20 OFFSET ?", [id, page], (err, result) => {
       if (err) {
         reject(err);
       }
@@ -42,20 +42,26 @@ const deletesubtractDeudaRecordDB = (id) => {
   });
 };
 const createsubtractDeudaRecordDB = (record) => {
-  const { fecha, valor, idDeuda } = record;
-
+  const { fecha, valor, idDeuda, idUsuario } = record;
   return new Promise((resolve, reject) => {
-    conexion.query("select valor from suma_deuda where id_deuda=?", [{ id_deuda: idDeuda }], (err, valoresCredito) => {
+    conexion.query(`
+    (
+      SELECT 
+      (IFNULL(SUM(costo * unidades), 0) - IFNULL((SELECT SUM(valor) FROM abonos WHERE id_deuda = ? AND id_usuario = ?), 0))  totalAbonos
+  FROM 
+      productos_historial 
+  WHERE 
+      id_deuda = ? AND metodo_pago = "compra a credito"
+  
+    )
+    `, [idDeuda, idUsuario, idDeuda, idUsuario], (err, valores) => {
       if (err) {
         reject(err.message);
       } else {
-        const valores = [].concat(...valoresCredito.map(valor => valor));
-        if (valores.reduce((a, b) => a + b, 0) <= 0) {
-          resolve({ success: false, message: "no tienes pendientes" });
-        } else if (valor <= valores) {
-          resolve({ success: false, message: "el valor excede el credito" });
+        if (parseInt(valor) > valores[0].totalAbonos) {
+          resolve({ success: false, message: `solo tienes que pagar ${valores[0].totalAbonos}` });
         } else {
-          conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_deuda: idDeuda }], (err, row) => {
+          conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_deuda: idDeuda, id_usuario: idUsuario }], (err, row) => {
             if (err) {
               reject(err.message);
             } else {
@@ -65,8 +71,7 @@ const createsubtractDeudaRecordDB = (record) => {
         }
       }
     });
-  }
-  );
+  });
 };
 
 module.exports = {

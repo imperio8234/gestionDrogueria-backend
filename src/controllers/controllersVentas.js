@@ -65,15 +65,13 @@ const getVentas = (req, res) => {
 const getAllVentas = (req, res) => {
   const id = parseInt(req.usuario.id_usuario);
   const pagina = req.params.page;
+  const fecha = req.params.fecha;
 
-  getAllVentasDB(id, pagina)
+  getAllVentasDB(id, pagina, fecha)
     .then(result => {
       if (result.success) {
-        const fechas = [].concat(...result.ventas.map(fecha => fecha.fecha));
-        const fechas2 = [...new Set(fechas)];
-
         res.json({
-          data: fechas2,
+          data: result.ventas,
           success: true,
           page: result.paginas
         });

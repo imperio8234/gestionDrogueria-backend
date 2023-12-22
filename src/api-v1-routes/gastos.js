@@ -1,10 +1,11 @@
-const { optenerGastos, crearGastos, eliminarGastos, modificarGastos } = require("../controllers/controllersGastos");
+const { optenerGastos, crearGastos, eliminarGastos, modificarGastos, detallesGastos } = require("../controllers/controllersGastos");
 const verify = require("../toolsDev/midelware/verifyToken");
 
 const router = require("express").Router();
 
-router.get("/optenergastos", optenerGastos);
-router.post("/creargastos", crearGastos);
-router.delete("/eliminargastos", eliminarGastos);
-router.put("/modificargastos", modificarGastos);
+router.get("/optenergastos/:mes", verify, optenerGastos);
+router.post("/creargastos", verify, crearGastos);
+router.delete("/eliminargastos/:id", verify, eliminarGastos);
+router.get("/detallesgastos/:categoria/:mes", verify, detallesGastos);
+router.put("/modificargastos", verify, modificarGastos);
 module.exports = router;
