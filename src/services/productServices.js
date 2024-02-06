@@ -7,11 +7,30 @@ const GetAllproductDB = (id, pagina) => {
       if (err) {
         reject(err);
       }
-      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM productos", (err, pages) => {
+      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM productos where id_usuario=?", [id], (err, pages) => {
         if (err) {
           reject(err);
         } else {
-          resolve({ success: true, data: result, paginas: pages[0] });
+          conexion.query("select distinct distribuidor, laboratorio  from productos where id_usuario = ?", [id], (err, fil) => {
+            if (err) {
+              reject(err);
+            } else {
+              conexion.query(`
+              select 
+                sum((costo * unidades)) valorProductos, 
+                sum(((precio * unidades)-(costo * unidades))) ganancias 
+              from 
+                productos 
+              where 
+              id_usuario = ?
+              `, [id], (err, totalP) => {
+                if (err) {
+                  reject(err);
+                }
+                resolve({ success: true, totalP, filtros: fil, data: result, paginas: pages[0] });
+              })
+            }
+          });
         }
       });
     });
@@ -31,12 +50,11 @@ const DeleteproductDB = (id) => {
 };
 
 const UpdateproductDB = (updateProduct) => {
-  const { nombre, costo, precio, laboratorio, unidades, idProduct, distribuidor, idUsuario, porcentageIva, metodoPago } = updateProduct;
+  const { ubicacion, nombre, costo, precio, laboratorio, unidades, idProduct, distribuidor, idUsuario, porcentageIva, metodoPago, codeBar } = updateProduct;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE productos SET nombre =?, unidades =?, precio =?, laboratorio=?, costo=?, metodo_pago =?, distribuidor =? porcentageIva= ?  WHERE id_producto=? and id_usuario = ?", [nombre, unidades, precio, laboratorio, costo, metodoPago, idProduct, distribuidor, porcentageIva, idUsuario], (err, row) => {
+    conexion.query("UPDATE productos SET nombre =?, unidades =?, precio =?, laboratorio=?, costo=?, metodo_pago =?, distribuidor =?, porcentageIva= ?, codeBar=?, ubicacion=?  WHERE id_producto=? and id_usuario = ?", [nombre, unidades, precio, laboratorio, costo, metodoPago, distribuidor, porcentageIva, codeBar, ubicacion, idProduct, idUsuario], (err, row) => {
       if (err) {
         reject(err);
-        console.log(err);
       } else {
         resolve(true);
       }
@@ -45,21 +63,20 @@ const UpdateproductDB = (updateProduct) => {
 };
 
 const CreateproductDB = (customer) => {
-  const { idProduct, idDeuda, nombre, idUsuario, costo, precio, laboratorio, unidades, distribuidor, codeBar, porcentageIva, modalidadPago } = customer;
+  const { ubicacion, idProduct, idDeuda, nombre, idUsuario, costo, precio, laboratorio, unidades, distribuidor, codeBar, porcentageIva, modalidadPago } = customer;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM productos WHERE nombre =? and id_usuario = ?", [nombre, idUsuario], (err, resultado) => {
       if (err) {
         reject(err);
       } else {
-        console.log(resultado);
         if (!resultado.length <= 0) {
           resolve(false);
         } else {
-          conexion.query("insert into productos_historial set ? ", [{ codeBar: parseInt(codeBar) ? parseInt(codeBar) : 0, nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor, porcentageIva, metodo_pago: modalidadPago, id_deuda: idDeuda, id_producto: idProduct }], (err, result) => {
+          conexion.query("insert into productos_historial set ? ", [{ codeBar: parseInt(codeBar) ? parseInt(codeBar) : 0, nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, fecha: new Date().toLocaleDateString(), distribuidor, porcentageIva, metodo_pago: modalidadPago, id_deuda: idDeuda, id_producto: idProduct, ubicacion }], (err, result) => {
             if (err) {
               reject(err);
             } else {
-              conexion.query("INSERT INTO productos SET ?", [{ id_deuda: idDeuda, codeBar: parseInt(codeBar) ? parseInt(codeBar) : 0, nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, distribuidor, porcentageIva, metodo_pago: modalidadPago, id_producto: idProduct }], (err, row) => {
+              conexion.query("INSERT INTO productos SET ?", [{ id_deuda: idDeuda, codeBar: parseInt(codeBar) ? parseInt(codeBar) : 0, nombre, id_usuario: idUsuario, costo, precio, laboratorio, unidades, distribuidor, porcentageIva, metodo_pago: modalidadPago, id_producto: idProduct, ubicacion }], (err, row) => {
                 if (err) {
                   reject(err.message);
                 } else {
@@ -115,11 +132,43 @@ const compraProductosDB = (buyProduct) => {
   });
 };
 
+const filtrarProductoBD = (idUsuario, filtro) => {
+  const cantidad = filtro.cantidad;
+  const laboratorio = filtro.laboratorio;
+  const distribuidor = filtro.distribuidor;
+
+  // CONSULTAS
+  let sql = "select * from productos where id_usuario=?";
+  if (laboratorio) {
+    sql += ` AND laboratorio = '${laboratorio}'`;
+  }
+
+  if (cantidad) {
+    sql += ` AND unidades <= ${cantidad}`;
+  }
+
+  if (distribuidor) {
+    // eslint-disable-next-line no-unused-vars
+    sql += ` AND distribuidor = '${distribuidor}'`;
+  }
+
+  return new Promise((resolve, reject) => {
+    conexion.query(sql, [idUsuario], (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+};
+
 module.exports = {
   GetAllproductDB,
   DeleteproductDB,
   UpdateproductDB,
   CreateproductDB,
   findProductDB,
-  compraProductosDB
+  compraProductosDB,
+  filtrarProductoBD
 };

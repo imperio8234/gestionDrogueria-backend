@@ -34,9 +34,8 @@ const GetAllsubtractCreditRecord = (req, res) => {
     });
 };
 const updatesubtractCreditRecord = (req, res) => {
-  const { fecha, idRecord, valor } = req.body;
+  const { idRecord, valor } = req.body;
   const updateRecord = {
-    fecha,
     idRecord,
     valor
   };
@@ -77,6 +76,7 @@ const deletesubtractCreditRecord = (req, res) => {
   });
 };
 const createsubtractCreditRecord = (req, res) => {
+  const idUsuario = req.usuario.id_usuario;
   const { idCredito, fecha, valor } = req.body;
   const record = {
     idCredito,
@@ -85,7 +85,7 @@ const createsubtractCreditRecord = (req, res) => {
   };
 
   if (idCredito && isNumber(valor) && fecha) {
-    createsubtractCreditRecordDB(record)
+    createsubtractCreditRecordDB(record, idUsuario)
       .then(result => {
         if (result.success) {
           res.json({

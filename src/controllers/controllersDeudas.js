@@ -9,7 +9,6 @@ const CreateDeudas = (req, res) => {
     celular,
     date
   };
-
   CreatedeudaDB(customer)
     .then(result => {
       if (result) {
@@ -38,8 +37,8 @@ const GetDeudas = (req, res) => {
   const page = req.params.page;
   GetAlldeudaDB(idUsuario, page)
     .then(result => {
-      if (!result.data.data.length <= 0) {
-        const data = result.data.data;
+      if (!result.data.length <= 0) {
+        /* const data = result.data.data;
         const saldo = result.data.saldoPendiente;
 
         const newData = data.map((item) => {
@@ -48,10 +47,27 @@ const GetDeudas = (req, res) => {
           item.saldoPendiente = saldoPe ? parseInt(saldoPe.total_abonos) : 0;
           return { ...item };
         });
+     */
+        const newData = result.data.map(item => {
+          const compra = result.compras.find(compra => compra.id_deuda === item.id_deuda);
+          const abonos = result.abonos.find(abono => abono.id_deuda === item.id_deuda);
 
+          item.saldoPendiente = parseInt(compra === undefined ? 0 : compra.compras) - parseInt(abonos === undefined ? 0 : abonos.abonos);
+          item.compras = parseInt(compra === undefined ? 0 : compra.compras);
+          item.abonos = parseInt(abonos === undefined ? 0 : abonos.abonos);
+
+          return { ...item };
+        });
+        const totalCompras = result.compras.reduce((a, b) => {
+          return parseInt(a) + parseInt(b.compras);
+        }, 0);
+        const totalabonos = result.abonos.reduce((a, b) => {
+          return parseInt(a) + parseInt(b.abonos);
+        }, 0);
         res.json({
           data: newData,
           paginas: result.paginas,
+          totalDeudas: totalCompras - totalabonos,
           success: true
         });
       } else {

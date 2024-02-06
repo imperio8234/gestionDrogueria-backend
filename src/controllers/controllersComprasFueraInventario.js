@@ -1,36 +1,36 @@
-const { crearGastosDB, optenerGastosDB, detallesGastosDB, eliminarGastosDB, modificarGastosDB } = require("../services/gastosServices");
+const { crearComprafDB, modificarComprafDB, optenerComprafDB, eliminarComprafDB } = require("../services/servicesCompraFueraInventario");
 const getDate = require("../toolsDev/getDate");
 const isNumber = require("../toolsDev/isNumber");
 const random = require("../toolsDev/random");
 
-const crearGastos = (req, res) => {
+const crearCompraf = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { descripcion, valorGasto, categoria } = req.body;
+  const { descripcion, valorCompraf, idDeuda } = req.body;
 
   // verificacion de datos
-  if (!descripcion || !valorGasto || !categoria) {
+  if (!descripcion || !valorCompraf) {
     res.status(404).json({
       message: "el valor o descripcion son incompletos",
       success: false
     });
     return;
-  } else if (!isNumber(valorGasto)) {
+  } else if (!isNumber(valorCompraf)) {
     res.status(404).json({
       message: "existe informacion erronea",
       success: false
     });
     return;
   }
-  const gasto = {
-    idGasto: random(1000, 9000),
+  const compraf = {
+    idCompraf: random(1000, 9000),
+    idDeuda,
     idUsuario,
     descripcion,
-    valorGasto,
-    categoria,
+    valorCompraf,
     fecha: getDate()
   };
-  // introduccion de datos
-  crearGastosDB(gasto)
+    // introduccion de datos
+  crearComprafDB(compraf)
     .then((result) => {
       res.status(200).json({
         message: "exito",
@@ -48,11 +48,11 @@ const crearGastos = (req, res) => {
     });
 };
 
-const modificarGastos = (req, res) => {
+const modificarCompraf = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   const data = req.body;
 
-  modificarGastosDB(idUsuario, data)
+  modificarComprafDB(idUsuario, data)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -72,10 +72,13 @@ const modificarGastos = (req, res) => {
     });
 };
 
-const optenerGastos = (req, res) => {
+const optenerCompraf = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const fecha = req.params.mes;
-  optenerGastosDB(idUsuario, fecha)
+  const fecha = req.params.fecha;
+  const idDeuda = req.params.id;
+  const pagina = req.params.pagina;
+
+  optenerComprafDB(idUsuario, fecha, idDeuda, pagina)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -94,10 +97,10 @@ const optenerGastos = (req, res) => {
     });
 };
 
-const eliminarGastos = (req, res) => {
+const eliminarCompraf = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const idGasto = req.params.id;
-  eliminarGastosDB(idGasto, idUsuario)
+  const idCompraf = req.params.id;
+  eliminarComprafDB(idCompraf, idUsuario)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -116,38 +119,10 @@ const eliminarGastos = (req, res) => {
       }
     });
 };
-const detallesGastos = (req, res) => {
-  const idUsuario = req.usuario.id_usuario;
-  const { categoria, mes } = req.params;
-  detallesGastosDB(categoria, mes, idUsuario)
-    .then((result) => {
-      if (result.length <= 0) {
-        res.status(404).json({
-          message: "no existen registros",
-          success: false
-        });
-      } else {
-        res.status(200).json({
-          message: "exito",
-          success: true,
-          data: result
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(505).json({
-        message: "error",
-        success: false,
-        err
-      });
-    });
-};
 
 module.exports = {
-  crearGastos,
-  modificarGastos,
-  optenerGastos,
-  eliminarGastos,
-  detallesGastos
-
+  crearCompraf,
+  modificarCompraf,
+  optenerCompraf,
+  eliminarCompraf
 };

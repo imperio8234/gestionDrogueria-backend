@@ -19,6 +19,6 @@ router.put("/", verify, verifyActivation, updateUsers);
 router.put("/password", recoverPassword);
 router.post("/aut", authenticateUser);
 router.post("/", createUsers);
-router.delete("/:id", verify, deleteUsers);
+router.delete("/", verify, deleteUsers);
 
 module.exports = router;

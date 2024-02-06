@@ -1,4 +1,4 @@
-const { GetAllproductDB, DeleteproductDB, UpdateproductDB, CreateproductDB, findProductDB, compraProductosDB } = require("../services/productServices");
+const { GetAllproductDB, DeleteproductDB, UpdateproductDB, CreateproductDB, findProductDB, compraProductosDB, filtrarProductoBD } = require("../services/productServices");
 const isNumber = require("../toolsDev/isNumber");
 const random = require("../toolsDev/random");
 const getAllproducts = (req, res) => {
@@ -12,10 +12,18 @@ const getAllproducts = (req, res) => {
           message: "no hay productos registrados"
         });
       } else {
+        const filtros = data.filtros;
+        const distribuidor = [].concat(...filtros.map(dis => dis.distribuidor));
+        const distribuidor2 = [...new Set(distribuidor)];
+        const laboratorio = [].concat(...filtros.map(lab => lab.laboratorio));
+        const laboratorio2 = [...new Set(laboratorio)];
         res.json({
           success: true,
           message: "productos registrados",
-          data
+          data: data.data,
+          paginas: data.paginas,
+          info: data.totalP,
+          filtros: { laboratorio: laboratorio2, distribuidor: distribuidor2 }
         });
       }
     })
@@ -28,7 +36,7 @@ const getAllproducts = (req, res) => {
 
 const createProducts = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { nombre, unidades, costo, precio, laboratorio, distribuidor, codeBar, porcentageIva, modalidadPago, idDeuda } = req.body;
+  const { ubicacion, nombre, unidades, costo, precio, laboratorio, distribuidor, codeBar, porcentageIva, modalidadPago, idDeuda } = req.body;
 
   const product = {
     nombre,
@@ -42,7 +50,8 @@ const createProducts = (req, res) => {
     distribuidor,
     codeBar,
     porcentageIva,
-    modalidadPago
+    modalidadPago,
+    ubicacion
   };
   if (!isNumber(unidades) || !isNumber(costo) || !isNumber(precio)) {
     res.json({
@@ -95,7 +104,7 @@ const deleteProducts = (req, res) => {
 
 const updateProducts = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { nombre, unidades, costo, precio, laboratorio, idProduct, distribuidor, porcentageIva, metodoPago } = req.body;
+  const { ubicacion, codeBar, nombre, unidades, costo, precio, laboratorio, idProduct, distribuidor, porcentageIva, metodoPago } = req.body;
   const product = {
     nombre,
     unidades,
@@ -106,7 +115,9 @@ const updateProducts = (req, res) => {
     distribuidor,
     idUsuario,
     porcentageIva,
-    metodoPago
+    metodoPago,
+    codeBar,
+    ubicacion
   };
 
   if (!isNumber(precio) || !isNumber(costo) || !isNumber(unidades)) {
@@ -215,11 +226,40 @@ const comprarProductos = (req, res) => {
   }
 };
 
+const filtrarProducto = (req, res) => {
+  const filtro = JSON.parse(req.params.filtro);
+  const usuario = req.usuario.id_usuario;
+
+  filtrarProductoBD(usuario, filtro)
+    .then((result) => {
+      if (result.length < 1) {
+        res.status(200).json({
+          message: "no se encontro ningun registro",
+          success: false
+        });
+      } else {
+        res.status(200).json({
+          message: "exito",
+          data: result,
+          success: true
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: "error en el proceso",
+        success: false,
+        err
+      });
+    });
+};
+
 module.exports = {
   getAllproducts,
   deleteProducts,
   updateProducts,
   createProducts,
   findProduct,
-  comprarProductos
+  comprarProductos,
+  filtrarProducto
 };

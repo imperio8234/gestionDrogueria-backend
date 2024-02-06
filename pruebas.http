@@ -409,3 +409,18 @@ GET http://localhost:2000/api/v1/gastos/modificargastos HTTP/1.1
 
 ### optener baance 
 GET http://localhost:2000/api/v1/metrica/balance HTTP/1.1
+
+
+### crear compraf 
+POST http://localhost:2000/api/v1/comprasf/crearcompraf HTTP/1.1
+Content-Type: application/json
+
+{
+    "descripcion": "hola",
+    "idDeuda": 3,
+    "valorCompraf": 20000
+}
+
+
+### OPTENER COMPRASF
+GET http://localhost:2000/api/v1/comprasf/optenercompraf/""/ HTTP/1.1

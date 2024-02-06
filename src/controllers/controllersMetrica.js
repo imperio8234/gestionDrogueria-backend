@@ -140,14 +140,29 @@ const optenerComprasYventas = (req, res) => {
 
         });
       } else {
+        // Verificar si 'abonos' existe en result.creditos[0]
+        const tieneAbonos = result.creditos[0]?.abonos !== undefined;
+        // Verificar si 'saldoCreditos' existe en result.creditos[0]
+        const tieneSaldoCreditos = result.creditos[0]?.saldoCreditos !== undefined;
         res.status(200).json({
           message: "exito",
           success: true,
-          data: result
+          data: [
+            {
+              compras_sin_pagar: parseInt(result.comprasSinPagar[0].valor),
+              compras_totales: result.compras[0].compras_totales,
+              total_venta: result.ventas[0].total_venta,
+              total_ganancia: result.ventas[0].total_ganancia,
+              valor_gasto: result.gastos[0].valor_gasto,
+              deuda_creditos: tieneSaldoCreditos ? result.creditos[0].saldoCreditos : 0,
+              creditos_pagos: tieneAbonos ? result.creditos[0].abonos : 0
+            }
+          ]
         });
       }
     })
     .catch((err) => {
+      console.log(err);
       if (err) {
         res.status(505).json({
           message: err,
@@ -161,51 +176,50 @@ const optenerComprasYventas = (req, res) => {
 const exportar = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   const fecha = req.params.fecha.split("-").reverse().join("/");
-
   exportarDB(fecha, idUsuario)
     .then(result => {
-      if (result.length < 0) {
+      if (result.gastos.length < 0 || result.ventas.length < 0) {
         res.status(404).json({
           message: "sin registros",
           success: false
         });
       } else {
-        console.log(result)
-        const personas = [
-          { nombre: 'Juan', celular: '123456789', ciudad: 'Ciudad A' },
-          { nombre: 'María', celular: '987654321', ciudad: 'Ciudad B' },
-          // ... más datos
-        ];
-          // eslint-disable-next-line no-return-assign
-       const headers = personas.reduce((acc, obj) => acc = Object.getOwnPropertyNames(obj), []);
+        // recoleccion de headers de los distintos cuadros
+        // eslint-disable-next-line no-return-assign
+        const headers = result.ventas.reduce((acc, obj) => acc = Object.getOwnPropertyNames(obj), []);
+        // eslint-disable-next-line no-return-assign
+        const gastos = result.gastos.reduce((acc, obj) => acc = Object.getOwnPropertyNames(obj), []);
 
         // envio y modificacion del exel
         const exporData = (data) => {
           const workBook = new exelJs.Workbook();
           const workSheet = workBook.addWorksheet("worksheet");
-
-          // workSheet.columns = headers.map((persona) => {
-          // return { header: persona, key: persona, width: 20, style: encabezadoStyle};
-          // });
+          // informacion de comprobante
           workSheet.getCell("A1").value = req.usuario.nombreNegocio;
           workSheet.getCell("A2").value = `fecha de comprobante : ${new Date().toLocaleString()}`;
           workSheet.mergeCells("A1:J1");
           workSheet.mergeCells("A2:J2");
 
-          // columna de fecha
+          // columna de fecha del cierre de venta
           workSheet.getCell("A4").value = "Fecha del cierre diario";
-          workSheet.getCell("A5").value = "20.000";
+          workSheet.getCell("A5").value = fecha;
           workSheet.mergeCells("A4:C4");
           workSheet.mergeCells("A5:C5");
 
-          // productos vendidos
-
+          // productos vendidos encabezados
           workSheet.spliceRows(8, 0, headers);
 
-          // Crear tabla a partir de los datos
-          personas.forEach((dato, index) => {
+          // insercion de gastos
+          /* result.gastos.forEach((dato, index) => {
+            const rowIndex = index + 11;
+            const row = workSheet.getCell(`J${rowIndex}`)
+            row.value = dato;
+          }) */
+
+          // insercion de prodctos vendidos
+          result.ventas.forEach((dato, index) => {
             const rowIndex = index + 9; // Comenzar desde la fila 9
-            workSheet.addRow([dato.nombre, dato.celular, dato.ciudad], `A${rowIndex}`);
+            workSheet.addRow([dato.producto, dato.cantidad, dato.laboratorio, dato.IVA, dato.valorProductos, dato.precio, dato.costo], `A${rowIndex}`);
           });
 
           // ESTILO  DE CELDAS
@@ -235,23 +249,39 @@ const exportar = (req, res) => {
               horizontal: "center" // Centrar horizontalmente
             }
           };
-          const celdaCombinada = workSheet.getCell("A1");
-          const celdaCombinada2 = workSheet.getCell("A2");
+          workSheet.columns.forEach(columna => {
+            columna.width = 20;
+          });
+
+          // gastos encabezados
+          gastos.forEach((dato, index) => {
+            const rowIndex = index + 9;
+            const row = workSheet.getCell(`I${rowIndex}`);
+            row.value = dato;
+            row.style = Style;
+          });
+
+          // optencion de celdas para dar estilos
+          const informacionComprobante = workSheet.getCell("A1");
+          const informacionComprobante2 = workSheet.getCell("A2");
           const fechaDia = workSheet.getCell("A4");
           const fechaDia2 = workSheet.getCell("A5");
           workSheet.getCell("A8").style = Style;
           workSheet.getCell("B8").style = Style;
           workSheet.getCell("C8").style = Style;
-          celdaCombinada.style = Style;
-          celdaCombinada2.style = Style;
+          workSheet.getCell("D8").style = Style;
+          workSheet.getCell("E8").style = Style;
+          workSheet.getCell("F8").style = Style;
+          workSheet.getCell("G8").style = Style;
+          informacionComprobante.style = Style;
+          informacionComprobante2.style = Style;
           fechaDia.style = Style;
           fechaDia2.style = Style2;
 
-          // workSheet.addRows(data);
           return workBook;
         };
         // retornar el libro exel
-        const workBook = exporData(personas);
+        const workBook = exporData();
         res.setHeader(
           "Content-type",
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

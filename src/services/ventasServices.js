@@ -50,9 +50,14 @@ const getVentasDB = (id, pagina, fecha) => {
   });
 };
 const getAllVentasDB = (id, pagina, fecha) => {
+  const año = fecha.split("y")[1];
+  const mes = fecha.split("y")[0];
   const paginas = (pagina - 1) * 50;
   return new Promise((resolve, reject) => {
-    conexion.query(`select * from ventas where id_usuario = ? and date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${fecha}) order by fecha DESC limit 50 offset ?`, [id, paginas], (err, result) => {
+    conexion.query(`select * from ventas where id_usuario = ? and date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+    and
+    STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31' 
+    order by fecha DESC limit 50 offset ?`, [id, paginas], (err, result) => {
       if (err) {
         reject(err);
       } else {

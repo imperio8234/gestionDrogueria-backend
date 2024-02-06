@@ -2,7 +2,7 @@ CREATE DATABASE villa;
 use villa
 
 CREATE TABLE administrador(
-    id_usuario INT NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(250) NOT NULL,
     correo VARCHAR(250) NOT NULL,
     email VARCHAR(250) NOT NULL,
@@ -19,25 +19,26 @@ CREATE TABLE administrador(
 );
 
 CREATE TABLE productos(
-    id_producto INT NOT NULL AUTO_INCREMENT,
+    id_producto BIGINT NOT NULL AUTO_INCREMENT,
     unidades INT NOT NULL,
     distribuidor VARCHAR(400),
-     id_deuda BIGINT NOT null,
+    id_deuda BIGINT NOT null,
     nombre VARCHAR(250) NOT NULL,
     costo BIGINT NOT NULL,
     precio BIGINT NOT NULL,
     laboratorio VARCHAR(250),
     porcentageIva INT,
-    id_usuario INT NOT NULL,
-     metodo_pago VARCHAR(200) NOT NULL,
+    id_usuario BIGINT NOT NULL,
+    metodo_pago VARCHAR(200) NOT NULL,
+    ubicacion VARCHAR(300),
     codeBar BIGINT,
     PRIMARY KEY (id_producto),
     FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
 
 CREATE TABLE productos_historial(
-    id_compra int not null AUTO_INCREMENT,
-    id_producto INT NOT NULL AUTO_INCREMENT,
+    id_compra BIGINT not null AUTO_INCREMENT,
+    id_producto BIGINT NOT NULL AUTO_INCREMENT,
     id_deuda BIGINT NOT null,
     unidades INT NOT NULL,
     distribuidor VARCHAR(400),
@@ -45,18 +46,19 @@ CREATE TABLE productos_historial(
     costo BIGINT NOT NULL,
     precio BIGINT NOT NULL,
     laboratorio VARCHAR(250),
-    id_usuario INT NOT NULL,
+    id_usuario BIGINT NOT NULL,
     porcentageIva INT,
     fecha VARCHAR(500),
     metodo_pago VARCHAR(200) NOT NULL,
+    ubicacion VARCHAR(300),
     codeBar BIGINT,
     PRIMARY KEY (id_compra),
     FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
 
 CREATE TABLE deudas(
-    id_deuda INT NOT NULL AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
+    id_deuda BIGINT NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT NOT NULL,
     nombre VARCHAR(250) NOT NULL,
     celular VARCHAR(250) NOT NULL,
     valor BIGINT NOT NULL,
@@ -66,7 +68,7 @@ CREATE TABLE deudas(
 );
 
 CREATE TABLE abonos(
-    id_abono INT NOT NULL AUTO_INCREMENT,
+    id_abono BIGINT NOT NULL AUTO_INCREMENT,
     id_usuario BIGINT not null,
     id_deuda INT NOT NULL,
     fecha VARCHAR(250) NOT NULL,
@@ -76,8 +78,8 @@ CREATE TABLE abonos(
 );
 
 CREATE TABLE suma_deuda(
-    id_suma INT NOT NULL AUTO_INCREMENT,
-    id_deuda INT NOT NULL,
+    id_suma BIGINT NOT NULL AUTO_INCREMENT,
+    id_deuda BIGINT NOT NULL,
     fecha VARCHAR(250) NOT NULL,
     producto VARCHAR(250) NOT NULL,
     valor BIGINT NOT NULL,
@@ -86,8 +88,8 @@ CREATE TABLE suma_deuda(
 );
 
 CREATE TABLE creditos(
-    id_credito INT NOT NULL AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
+    id_credito BIGINT NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT NOT NULL,
     nombre VARCHAR(250) NOT NULL,
     celular VARCHAR(250) NOT NULL,
     fecha VARCHAR(250) NOT NULL,
@@ -96,26 +98,27 @@ CREATE TABLE creditos(
 );
 
 CREATE TABLE abonos_credito(
-    id_abono INT NOT NULL AUTO_INCREMENT,
-    id_credito INT NOT NULL,
+    id_abono BIGINT NOT NULL AUTO_INCREMENT,
+    id_credito BIGINT NOT NULL,
     fecha VARCHAR(250) NOT NULL,
     valor BIGINT NOT NULL,
+    id_usuario BIGINT,
     PRIMARY KEY (id_abono),
     CONSTRAINT fk_credito FOREIGN KEY (id_credito) REFERENCES creditos(id_credito) ON DELETE CASCADE
 );
 
 CREATE TABLE suma_credito(
-    id_suma INT NOT NULL AUTO_INCREMENT,
-    id_credito INT NOT NULL,
+    id_suma BIGINT NOT NULL AUTO_INCREMENT,
+    id_credito BIGINT NOT NULL,
     fecha VARCHAR(250) NOT NULL,
     producto VARCHAR(250) NOT NULL,
     valor BIGINT NOT NULL,
     unidades INT,
     precio BIGINT,
     laboratorio VARCHAR(500),
-    id_venta INT,
-    id_usuario INT,
-    id_producto INT,
+    id_venta BIGINT,
+    id_usuario BIGINT,
+    id_producto BIGINT,
     PRIMARY KEY (id_suma),
     CONSTRAINT fk_creditoSuma FOREIGN KEY (id_credito) REFERENCES creditos(id_credito) ON DELETE CASCADE
 );
@@ -123,8 +126,8 @@ CREATE TABLE suma_credito(
 -- Modulo de ventas
 
 CREATE TABLE ventas(
-    id_usuario INT NOT NULL,
-    id_venta INT NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT NOT NULL,
+    id_venta BIGINT NOT NULL AUTO_INCREMENT,
     fecha VARCHAR(300) NOT NULL,
     total_venta BIGINT NOT NULL,
     pago_con BIGINT,
@@ -134,16 +137,17 @@ CREATE TABLE ventas(
 );
 
 CREATE TABLE productos_vendidos(
-    id_producto_vendido INT NOT NULL AUTO_INCREMENT,
-    id_venta INT NOT NULL,
-    id_producto INT NOT NULL,
+    id_producto_vendido BIGINT NOT NULL AUTO_INCREMENT,
+    id_venta BIGINT NOT NULL,
+    id_producto BIGINT NOT NULL,
     producto VARCHAR(400),
     cantidad INT NOT NULL,
     laboratorio VARCHAR(500),
-    id_usuario INT,
+    id_usuario BIGINT,
     porcentageIva  INT,
-    valor_total INT,
+    valor_total BIGINT,
     valor BIGINT NOT NULL,
+    ubicacion VARCHAR(300),
     costo_un BIGINT,
     PRIMARY KEY (id_producto_vendido),
     CONSTRAINT fk_id_venta FOREIGN KEY (id_venta) REFERENCES ventas(id_venta) ON DELETE CASCADE,
@@ -151,8 +155,8 @@ CREATE TABLE productos_vendidos(
 );
 
 CREATE TABLE devoluciones(
-    id_devolucion INT NOT NULL AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
+    id_devolucion BIGINT NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT NOT NULL,
     cantidad INT NOT NULL,
     producto VARCHAR(400),
     valor BIGINT NOT NULL,
@@ -161,8 +165,8 @@ CREATE TABLE devoluciones(
 );
 
 CREATE TABLE gastos(
-    id_gasto INT NOT NULL AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
+    id_gasto BIGINT NOT NULL AUTO_INCREMENT,
+    id_usuario BIGINT NOT NULL,
     fecha VARCHAR(400) NOT NULL,
     descripcion VARCHAR(600),
     valor BIGINT NOT NULL,
@@ -173,22 +177,23 @@ CREATE TABLE gastos(
 -- Tabla de lista
 
 CREATE TABLE lista (
-    id_usuario INT NOT NULL,
-    id_producto INT,
+    id_usuario BIGINT NOT NULL,
+    id_producto BIGINT,
     nombre VARCHAR(400),
     unidades INT,
     precio BIGINT,
-    costo_un BIGINT 
-    valor_total INT,
+    costo_un BIGINT,
+    valor_total BIGINT,
     porcentageIva INT,
     laboratorio VARCHAR(500),
+    ubicacion VARCHAR(300),
     PRIMARY KEY (id_producto),
     CONSTRAINT fk_lista FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS gastos (
-    id_gasto int not null AUTO_INCREMENT primary KEY,
-    id_usuario int not null,
+    id_gasto BIGINT not null AUTO_INCREMENT primary KEY,
+    id_usuario BIGINT not null,
     descripcion VARCHAR(1000),
     valor_gasto BIGINT not null,
     categoria VARCHAR(100) NOT NULL,
@@ -196,5 +201,26 @@ CREATE TABLE IF NOT EXISTS gastos (
     CONSTRAINT fk_gasto FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario)
     ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS compras_fuera_inventario (
+    id_compra BIGINT not null AUTO_INCREMENT primary KEY,
+    id_deuda BIGINT not null, 
+    descripcion VARCHAR(100),
+    fecha VARCHAR(100) not null,
+    valor BIGINT,
+    CONSTRAINT FK_compras FOREIGN KEY (id_deuda) REFERENCES deudas(id_deuda)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS fiado (
+    id_fiado BIGINT not null AUTO_INCREMENT primary KEY,
+    id_credito BIGINT not null, 
+    descripcion VARCHAR(100),
+    fecha VARCHAR(100) not null,
+    valor BIGINT,
+    CONSTRAINT FK_fiado FOREIGN KEY (id_credito) REFERENCES deudas(id_credito)
+    ON DELETE CASCADE
+);
+
 
 

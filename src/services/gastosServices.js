@@ -44,9 +44,15 @@ const modificarGastosDB = (idUsuario, data) => {
   });
 };
 
-const optenerGastosDB = (idUsuario, mes) => {
+const optenerGastosDB = (idUsuario, fecha) => {
+  const año = fecha.split("y")[1];
+  const mes = fecha.split("y")[0];
   return new Promise((resolve, reject) => {
-    conexion.query(`select categoria, sum(valor_gasto) valorTotal from gastos where id_usuario = ? and month(STR_TO_DATE(fecha, '%d/%m/%Y')) in(${mes}) group by categoria`, [idUsuario], (err, result) => {
+    conexion.query(`select categoria, sum(valor_gasto) valorTotal from gastos where id_usuario = ?
+     and month(STR_TO_DATE(fecha, '%d/%m/%Y')) in(${mes})
+     and
+     STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31' 
+     group by categoria`, [idUsuario], (err, result) => {
       if (err) {
         reject(err);
       } else {

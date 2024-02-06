@@ -14,7 +14,46 @@ const GetAlldeudaDB = (idUsuario, pagina) => {
             // calcular el valor total de cada deuda
             // se recojen las identificaciones
             conexion.query(`
-             SELECT
+            select 
+              id_deuda, 
+              ifnull(sum(costo * unidades), 0) compras 
+            from 
+              productos_historial 
+              where id_usuario = ?
+              and 
+              metodo_pago = "compra a credito"
+            group by id_deuda
+
+                 `, [idUsuario], (err, compras) => {
+              if (err) {
+                reject(err.message);
+              } else {
+                conexion.query(`
+                select 
+                 id_deuda, 
+                 ifnull(sum(valor), 0) abonos 
+                from 
+                 abonos 
+                where
+                 id_usuario = ?
+                group by id_deuda
+                `, [idUsuario], (err, abonos) => {
+                  if (err) {
+                    reject(err);
+                  }
+                  resolve({ success: true, data: result, compras, abonos, paginas: pages[0] });
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  });
+};
+
+/**
+ *
                distinct ph.id_deuda,
                (IFNULL(sum(ph.costo * ph.unidades) , 0) -  IFNULL(abonos_suma.saldo_pendiente, 0))  total_abonos
                  FROM
@@ -33,32 +72,28 @@ const GetAlldeudaDB = (idUsuario, pagina) => {
                WHERE
                    ph.id_usuario = ?
                AND ph.metodo_pago = "compra a credito"
-               group by id_deuda
-                 `, [idUsuario, idUsuario], (err, valorTotal) => {
-              if (err) {
-                reject(err.message);
-              } else {
-                // sumatoria de todos los valores
-                resolve({ success: true, data: { data: result, saldoPendiente: valorTotal }, paginas: pages[0] });
-              }
-            });
-          }
-        });
-      }
-    });
-  });
-};
-
+               group by id_deuda} id
+ */
 const DeletedeudaDB = (id) => {
   return new Promise((resolve, reject) => {
-    conexion.query("DELETE FROM deudas WHERE id_deuda=?", [id], (err, result) => {
-      if (err) {
-        const err1 = err;
-        reject(err1);
-      } else {
-        resolve(result);
+    conexion.query(
+      `
+      DELETE deudas, abonos, productos_historial
+      FROM deudas
+      LEFT JOIN abonos ON deudas.id_deuda = abonos.id_deuda
+      LEFT JOIN productos_historial ON deudas.id_deuda = productos_historial.id_deuda
+      WHERE deudas.id_deuda = ?
+      `,
+      [id],
+      (err, result) => {
+        if (err) {
+          const err1 = err;
+          reject(err1);
+        } else {
+          resolve(result);
+        }
       }
-    });
+    );
   });
 };
 

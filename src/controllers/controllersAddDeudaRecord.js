@@ -35,7 +35,8 @@ const CreateDeuda = (req, res) => {
 const GetDeuda = (req, res) => {
   const idDeuda = req.params.id;
   const pages = req.params.page;
-  GetAllDeudaDB(idDeuda, pages)
+  const idUsuario = req.usuario.id_usuario;
+  GetAllDeudaDB(idDeuda, idUsuario, pages)
     .then(result => {
       if (!result.data.length <= 0) {
         res.json({

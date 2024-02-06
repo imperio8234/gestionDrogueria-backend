@@ -1,36 +1,36 @@
-const { crearGastosDB, optenerGastosDB, detallesGastosDB, eliminarGastosDB, modificarGastosDB } = require("../services/gastosServices");
+const { eliminarFiadoDB, optenerFiadoDB, modificarFiadoDB, crearFiadoDB } = require("../services/servicesFiado");
 const getDate = require("../toolsDev/getDate");
 const isNumber = require("../toolsDev/isNumber");
 const random = require("../toolsDev/random");
 
-const crearGastos = (req, res) => {
+const crearFiado = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { descripcion, valorGasto, categoria } = req.body;
+  const { descripcion, valorFiado, idCredito } = req.body;
 
   // verificacion de datos
-  if (!descripcion || !valorGasto || !categoria) {
+  if (!descripcion || !valorFiado) {
     res.status(404).json({
       message: "el valor o descripcion son incompletos",
       success: false
     });
     return;
-  } else if (!isNumber(valorGasto)) {
+  } else if (!isNumber(valorFiado)) {
     res.status(404).json({
       message: "existe informacion erronea",
       success: false
     });
     return;
   }
-  const gasto = {
-    idGasto: random(1000, 9000),
+  const fiado = {
+    idFiado: random(1000, 9000),
+    idCredito,
     idUsuario,
     descripcion,
-    valorGasto,
-    categoria,
+    valorFiado,
     fecha: getDate()
   };
-  // introduccion de datos
-  crearGastosDB(gasto)
+    // introduccion de datos
+  crearFiadoDB(fiado)
     .then((result) => {
       res.status(200).json({
         message: "exito",
@@ -48,11 +48,11 @@ const crearGastos = (req, res) => {
     });
 };
 
-const modificarGastos = (req, res) => {
+const modificarFiado = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   const data = req.body;
 
-  modificarGastosDB(idUsuario, data)
+  modificarFiadoDB(idUsuario, data)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -72,10 +72,11 @@ const modificarGastos = (req, res) => {
     });
 };
 
-const optenerGastos = (req, res) => {
+const optenerFiado = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const fecha = req.params.mes;
-  optenerGastosDB(idUsuario, fecha)
+  const fecha = req.params.fecha;
+  const idCredito = req.params.id;
+  optenerFiadoDB(idUsuario, idCredito, fecha)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -94,10 +95,10 @@ const optenerGastos = (req, res) => {
     });
 };
 
-const eliminarGastos = (req, res) => {
+const eliminarFiado = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   const idGasto = req.params.id;
-  eliminarGastosDB(idGasto, idUsuario)
+  eliminarFiadoDB(idGasto, idUsuario)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -116,38 +117,10 @@ const eliminarGastos = (req, res) => {
       }
     });
 };
-const detallesGastos = (req, res) => {
-  const idUsuario = req.usuario.id_usuario;
-  const { categoria, mes } = req.params;
-  detallesGastosDB(categoria, mes, idUsuario)
-    .then((result) => {
-      if (result.length <= 0) {
-        res.status(404).json({
-          message: "no existen registros",
-          success: false
-        });
-      } else {
-        res.status(200).json({
-          message: "exito",
-          success: true,
-          data: result
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(505).json({
-        message: "error",
-        success: false,
-        err
-      });
-    });
-};
 
 module.exports = {
-  crearGastos,
-  modificarGastos,
-  optenerGastos,
-  eliminarGastos,
-  detallesGastos
-
+  crearFiado,
+  modificarFiado,
+  eliminarFiado,
+  optenerFiado
 };

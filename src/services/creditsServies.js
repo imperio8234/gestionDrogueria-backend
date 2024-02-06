@@ -7,40 +7,29 @@ const GetAllCustomersDB = (id, pagina) => {
       if (err) {
         reject(err);
       }
-      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM creditos", (err, pages) => {
+      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM creditos where id_usuario =?", [id], (err, pages) => {
         if (err) {
           reject(err);
         } else {
           // calcular el valor total de cada credito
-          conexion.query("select id_credito from creditos where id_usuario = ?", [id], (err, user) => {
+          conexion.query("select id_credito, sum(valor) valorAbonos from abonos_credito where id_usuario = ? group by id_credito", [id], (err, vAbonos) => {
             if (err) {
               reject(err.message);
             } else {
-            // se recojen las identificaciones
-              const idUsuarios = [0];
-              for (const i in user) {
-                idUsuarios.push(user[i].id_credito);
-              }
-              conexion.query(`select id_credito, sum(valor) as total
-              from(
-              select id_credito, valor from suma_credito
-              union all
-              select id_credito, valor from abonos_credito
-              )as id_credito
-              where id_credito in (${idUsuarios})
-              group by id_credito`, (err, valorTotal) => {
+            // se piden los totales de lac compras
+              conexion.query(`
+              select id_credito, sum(valor) valorCompras
+              from 
+                suma_credito
+                where 
+                id_usuario = ?
+                group by id_credito
+              `, [id], (err, vCompra) => {
                 if (err) {
                   reject(err.message);
                 } else {
                   // sumatoria de todos los valores
-                  const valorT = [0];
-                  for (const i in valorTotal) {
-                    valorT.push(valorTotal[i].total);
-                  }
-                  const resultValor = valorT.reduce((a, b) => {
-                    return a + b;
-                  });
-                  resolve({ success: true, data: { data: result, totalcreditos: resultValor }, paginas: pages[0] });
+                  resolve({ success: true, data: result, paginas: pages[0], vCompra, vAbonos });
                 }
               });
             }

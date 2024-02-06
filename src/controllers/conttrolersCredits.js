@@ -46,10 +46,21 @@ const GetCustomers = (req, res) => {
   const page = req.params.page;
   GetAllCustomersDB(id, page)
     .then(result => {
-      if (!result.data.data.length <= 0) {
+      if (!result.data.length <= 0) {
+        const vCompra = result.vCompra;
+        const vAbonos = result.vAbonos;
+        const creditos = result.data;
+
+        for (let i = 0; i < creditos.length; i++) {
+          const ValorAbonos = vAbonos.find(abono => abono.id_credito === creditos[i].id_credito);
+          const valorCompras = vCompra.find(compra => compra.id_credito === creditos[i].id_credito);
+          creditos[i].saldo = parseInt(valorCompras !== undefined ? valorCompras.valorCompras : 0) - parseInt(ValorAbonos !== undefined ? ValorAbonos.valorAbonos : 0);
+          creditos[i].abonos = ValorAbonos !== undefined ? ValorAbonos.valorAbonos : 0;
+          creditos[i].compras = valorCompras !== undefined ? valorCompras.valorCompras : 0;
+        }
         res.json({
           success: true,
-          data: result.data,
+          data: result,
           paginas: result.paginas
         });
       } else {

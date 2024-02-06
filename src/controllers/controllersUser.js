@@ -117,13 +117,15 @@ const createUsers = (req, res) => {
 };
 const updateUsers = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { nombre, correo, celular, negocio } = req.body;
+  const { nombre, correo, celular, negocio, nit, direccion } = req.body;
   const usuario = {
     nombre,
     correo,
     celular,
     idUsuario,
-    negocio
+    negocio,
+    nit,
+    direccion
   };
   updateUsersDB(usuario)
     .then(result => {
@@ -144,7 +146,7 @@ const updateUsers = (req, res) => {
     });
 };
 const deleteUsers = (req, res) => {
-  const id = req.params.id;
+  const id = req.usuario.id_usuario;
   deleteUsersDB(id)
     .then(result => {
       if (result) {

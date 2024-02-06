@@ -18,9 +18,9 @@ const GetAllsubtractCreditRecordDB = (id, pagina) => {
   });
 };
 const updatesubtractCreditRecordDB = (data) => {
-  const { fecha, valor, idRecord } = data;
+  const { valor, idRecord } = data;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE abonos_credito SET fecha =?, valor =? WHERE id_abono=?", [fecha, valor, idRecord], (err, row) => {
+    conexion.query("UPDATE abonos_credito SET valor =? WHERE id_abono=?", [valor, idRecord], (err, row) => {
       if (err) {
         reject(err);
       } else {
@@ -41,7 +41,7 @@ const deletesubtractCreditRecordDB = (id) => {
     });
   });
 };
-const createsubtractCreditRecordDB = (record) => {
+const createsubtractCreditRecordDB = (record, idUsuario) => {
   const { fecha, valor, idCredito } = record;
   return new Promise((resolve, reject) => {
     conexion.query("select valor from suma_credito where id_credito=?", [idCredito], (err, valoresCredito) => {
@@ -56,13 +56,12 @@ const createsubtractCreditRecordDB = (record) => {
             const valores2 = [].concat(...valoresAbonos.map(valor => parseInt(valor.valor)));
             const totales1 = valores.reduce((a, b) => a + b, 0);
             const totales2 = valores2.reduce((a, b) => a + b, 0);
-            console.log(totales1 - totales2);
             if (totales1 - totales2 <= 0) {
               resolve({ success: false, message: "no tienes pendientes" });
             } else if (valor > totales1) {
               resolve({ success: false, message: "su abono excede el credito" });
             } else {
-              conexion.query("INSERT INTO abonos_credito SET ?", [{ fecha, valor, id_credito: idCredito }], (err, row) => {
+              conexion.query("INSERT INTO abonos_credito SET ?", [{ fecha, valor, id_credito: idCredito, id_usuario: idUsuario }], (err, row) => {
                 if (err) {
                   reject(err.message);
                 } else {

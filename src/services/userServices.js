@@ -55,9 +55,9 @@ const createUsersDB = (user) => {
   });
 };
 const updateUsersDB = (user) => {
-  const { nombre, correo, celular, idUsuario, negocio } = user;
+  const { nombre, correo, celular, idUsuario, negocio, nit, direccion } = user;
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=?, nombreNegocio = ? WHERE id_usuario =?", [nombre, correo, celular, negocio, idUsuario], (err, row) => {
+    conexion.query("UPDATE administrador SET nombre=?, correo=?, celular=?, nombreNegocio = ?, nit =?, direccion =? WHERE id_usuario =?", [nombre, correo, celular, negocio, nit, direccion, idUsuario], (err, row) => {
       if (err) {
         reject(err);
       } else {

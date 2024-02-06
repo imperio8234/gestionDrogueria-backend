@@ -105,115 +105,152 @@ const filterCompras = () => {
   });
 };
 
-const optenerComprasYventasDB = (idUsuario, mes) => {
-  const query = `
-  SELECT
+const optenerComprasYventasDB = (idUsuario, fecha) => {
+  const año = fecha.split("y")[1];
+  const mes = fecha.split("y")[0];
 
-  IFNULL(ph2.compras_sin_pagar, 0) AS compras_sin_pagar,
-  IFNULL(ph.compras_totales, 0) AS compras_totales,
-  IFNULL(SUM(v.total_venta), 0) AS total_venta,
-  IFNULL(pv.total_ganancia, 0) AS total_ganancia,
-  IFNULL(g.valor_gasto, 0) AS valor_gasto,
-  IFNULL(dc.deuda_creditos, 0) AS deuda_creditos,
-  IFNULL(dc.creditos_pagos, 0) AS creditos_pagos
-
-FROM
-ventas v,
-(
-select 
-   sum((costo * unidades)) compras_totales 
-from 
-   productos_historial
-where 
-   id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-) ph,
- (
-  SELECT
-         SUM(((pv.valor - pv.costo_un) * pv.cantidad)) AS total_ganancia
-     FROM
-         productos_vendidos pv
-         left join ventas v on v.id_venta = pv.id_venta 
-     WHERE
-         pv.id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
- ) AS pv,
- (
-     SELECT
-         SUM(valor_gasto) AS valor_gasto
-     FROM
-         gastos
-     WHERE
-         id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
- ) AS g,
- (
-     SELECT
-         SUM(ac.valor) AS creditos_pagos,
-         (SUM(ac.valor) - (
-             SELECT
-                 SUM(valor)
-             FROM
-                 suma_credito
-             WHERE
-                 id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-         )) AS deuda_creditos
-     FROM
-         abonos_credito ac
-     WHERE
-         ac.id_credito IN (
-             SELECT
-                 id_credito
-             FROM
-                 creditos
-             WHERE
-                 id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-         )
- ) AS dc,
- (select 
-  (IFNULL((select sum(valor) from abonos where id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})), 0) - sum((costo * unidades)) ) compras_sin_pagar
-from 
-   productos_historial 
-where 
-   id_usuario = ? and metodo_pago = "compra a credito" and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-) ph2
-
-WHERE
-v.id_usuario = ? and  date_format(STR_TO_DATE(v.fecha, '%d/%m/%y'), '%m') in (${mes})
-GROUP BY
- total_ganancia,
- valor_gasto,
- deuda_creditos,
- compras_sin_pagar,
- compras_totales;
-  `;
   return new Promise((resolve, reject) => {
-    conexion.query(query,
-      [
-        idUsuario,
-        idUsuario,
-        idUsuario,
-        idUsuario,
-        idUsuario,
-        idUsuario,
-        idUsuario,
-        idUsuario
-      ],
-      (err, result) => {
+    conexion.query(`
+    select 
+      ifnull(sum((costo * unidades)), 0) compras_totales
+    from 
+      productos_historial
+    where 
+      id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+    and 
+      STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+    `,
+    [idUsuario],
+    (err, compras) => {
+      if (err) {
+        reject(err);
+      }
+      conexion.query(`
+        
+   select
+     (sum(costo * unidades) -
+      (select 
+         ifnull(sum(valor), 0) valor
+       from
+        abonos
+       where 
+        id_usuario = ? )) valor
+   from 
+    productos_historial 
+   where 
+     metodo_pago = "compra a credito"
+     and id_usuario = ?
+        `,
+      [idUsuario, idUsuario],
+      (err, comprasSinPagar) => {
         if (err) {
           reject(err);
-        } else {
-          resolve(result);
         }
+        conexion.query(`
+              SELECT
+                  ifnull(SUM(valor_gasto), 0) AS valor_gasto
+              FROM
+                  gastos
+              WHERE
+                  id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+                  and 
+         STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+            `,
+        [idUsuario],
+        (err, gastos) => {
+          if (err) {
+            reject(err);
+          }
+          conexion.query(`
+                SELECT
+                ifnull(sum(sc.valor) - abonos.valor, 0) saldoCreditos ,
+                ifnull(abonos.valor, 0) abonos
+               FROM
+                  suma_credito sc,
+                  (select ifnull(sum(valor), 0) valor from abonos_credito where id_credito IN (
+                       SELECT
+                           id_credito
+                       FROM
+                           creditos
+                       WHERE
+                           id_usuario = ?
+                          
+                   )
+                   ) abonos
+               WHERE
+                   sc.id_credito IN (
+                       SELECT
+                           id_credito
+                       FROM
+                           creditos
+                       WHERE
+                           id_usuario = ?
+                   )
+                          group by abonos.valor   
+                   ;
+                `,
+          [idUsuario, idUsuario],
+          (err, creditos) => {
+            if (err) {
+              reject(err);
+            }
+            conexion.query(`
+                    SELECT
+                    ifnull(sum(v.total_venta), 0) total_venta,
+                     ifnull(SUM(((pv.valor - pv.costo_un) * pv.cantidad)), 0) AS total_ganancia
+                 FROM
+                     ventas v
+                     left join productos_vendidos pv on pv.id_venta = v.id_venta
+                 WHERE
+                     v.id_usuario = ? and  date_format(STR_TO_DATE(v.fecha, '%d/%m/%y'), '%m') in (${mes})
+                     and 
+                     STR_TO_DATE(v.fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+             ;   
+                    `, [idUsuario], (err, ventas) => {
+              if (err) {
+                reject(err);
+              }
+
+              resolve({ comprasSinPagar, compras, ventas, gastos, creditos });
+            });
+          });
+        });
       });
+    });
   });
 };
 
 const exportarDB = (fecha, idUsuario) => {
   return new Promise((resolve, reject) => {
-    conexion.query("select * from ventas where fecha = ? and id_usuario =?", [fecha, idUsuario], (err, res) => {
+    conexion.query(`
+    select 
+   p.producto, 
+   p.cantidad, 
+   p.laboratorio, 
+   p.porcentageIva IVA, 
+   p.valor_total valorProductos, 
+   p.valor precio, 
+   p.costo_un costo
+  from 
+    productos_vendidos p
+      left join ventas v on v.id_venta = p.id_venta
+      where v.fecha = ? and v.id_usuario = ?
+    `, [fecha, idUsuario], (err, res) => {
       if (err) {
-        resolve(err);
-      } else {
-        reject(res);
+        reject(err);
       }
+
+      // peticion de gastos
+      conexion.query(`
+      select categoria, (sum(valor_gasto)) valor from gastos
+        where fecha = ? and id_usuario = ?
+        group by categoria
+      `, [fecha, idUsuario], (err, gasto) => {
+        if (err) {
+          reject(err);
+        }
+        resolve({ ventas: res, gastos: gasto });
+      });
     });
   });
 };
@@ -226,3 +263,100 @@ module.exports = {
   optenerComprasYventasDB,
   exportarDB
 };
+
+/**
+ *
+ *   SELECT
+
+  IFNULL(ph2.compras_sin_pagar, 0) AS compras_sin_pagar,
+  IFNULL(ph.compras_totales, 0) AS compras_totales,
+  IFNULL(SUM(v.total_venta), 0) AS total_venta,
+  IFNULL(pv.total_ganancia, 0) AS total_ganancia,
+  IFNULL(g.valor_gasto, 0) AS valor_gasto,
+  IFNULL(dc.deuda_creditos, 0) AS deuda_creditos,
+  IFNULL(dc.creditos_pagos, 0) AS creditos_pagos
+
+FROM
+ventas v,
+(
+select
+   sum((costo * unidades)) compras_totales
+from
+   productos_historial
+where
+   id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+   and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+) ph,
+ (
+  SELECT
+         SUM(((pv.valor - pv.costo_un) * pv.cantidad)) AS total_ganancia
+     FROM
+         productos_vendidos pv
+         left join ventas v on v.id_venta = pv.id_venta
+     WHERE
+         pv.id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+         and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+ ) AS pv,
+ (
+     SELECT
+         SUM(valor_gasto) AS valor_gasto
+     FROM
+         gastos
+     WHERE
+         id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+         and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+ ) AS g,
+ (
+     SELECT
+         SUM(ac.valor) AS creditos_pagos,
+         (SUM(ac.valor) - (
+             SELECT
+                 SUM(valor)
+             FROM
+                 suma_credito
+             WHERE
+                 id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+                 and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+         )) AS deuda_creditos
+     FROM
+         abonos_credito ac
+     WHERE
+         ac.id_credito IN (
+             SELECT
+                 id_credito
+             FROM
+                 creditos
+             WHERE
+                 id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+                 and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+         )
+ ) AS dc,
+ (select
+  (IFNULL((select sum(valor) from abonos where id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+  and
+   STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+  ), 0) - sum((costo * unidades)) ) compras_sin_pagar
+from
+   productos_historial
+where
+   id_usuario = ? and metodo_pago = "compra a credito" and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
+   and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+) ph2
+
+WHERE
+v.id_usuario = ? and  date_format(STR_TO_DATE(v.fecha, '%d/%m/%y'), '%m') in (${mes})
+and
+STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
+GROUP BY
+ total_ganancia,
+ valor_gasto,
+ deuda_creditos,
+ compras_sin_pagar,
+ compras_totales;
+ */

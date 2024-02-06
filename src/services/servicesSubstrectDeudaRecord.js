@@ -1,13 +1,13 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 
-const GetAllsubtractDeudaRecordDB = (id, pagina) => {
+const GetAllsubtractDeudaRecordDB = (id, idUsuario, pagina) => {
   const page = (pagina - 1) * 20;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM abonos WHERE id_deuda =? order by id_abono DESC LIMIT 20 OFFSET ?", [id, page], (err, result) => {
       if (err) {
         reject(err);
       }
-      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM abonos", (err, pages) => {
+      conexion.query("SELECT CEIL(COUNT(*)/ 20) AS paginas FROM abonos where id_usuario = ? and id_deuda =?", [idUsuario, id], (err, pages) => {
         if (err) {
           reject(err);
         } else {
