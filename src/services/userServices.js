@@ -33,7 +33,7 @@ const getUserDB = (idUsuario) => {
   });
 };
 const createUsersDB = (user) => {
-  const { nombre, correo, celular, pass, inicio, fecha, activo, clave, negocio } = user;
+  const { nombre, correo, celular, pass, inicio, fecha, activo, clave, negocio, nit, direccion } = user;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM administrador WHERE correo=?", [correo], (err, result) => {
       if (err) {
@@ -42,7 +42,7 @@ const createUsersDB = (user) => {
         if (!result.length <= 0) {
           resolve({ message: "el usuario ya se encuentra registrado con este correo", success: false });
         } else {
-          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass, inicio, fecha, activo, clave, nombreNegocio: negocio }], (err, row) => {
+          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass, inicio, fecha, activo, clave, nombreNegocio: negocio, nit, direccion}], (err, row) => {
             if (err) {
               reject(err);
             } else {

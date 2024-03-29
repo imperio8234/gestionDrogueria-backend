@@ -22,6 +22,8 @@ app.use(cors(corsOptions));
 // RUTAS
 app.use("/api/v1", require("./src/api-v1-routes/index"));
 
-app.listen(DB_PORT, () => {
-  console.log("puerto en marcha en el puerto " + " " + DB_PORT);
+app.listen(DB_PORT, async () => {
+  await console.log("puerto en marcha en el puerto " + " " + DB_PORT);
 });
+
+module.exports = app

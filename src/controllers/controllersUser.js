@@ -58,7 +58,7 @@ const getUser = (req, res) => {
     });
 };
 const createUsers = (req, res) => {
-  const { nombre, correo, celular, contraseña, negocio } = req.body;
+  const { nombre, correo, celular, contraseña, negocio, nit, direccion } = req.body;
   // contraseña encriptada
   const pass = bcrypt.hashSync(contraseña, 8);
 
@@ -71,7 +71,9 @@ const createUsers = (req, res) => {
     fecha: new Date().toLocaleDateString(),
     inicio: new Date().getDate(),
     clave: random(1000, 9000),
-    negocio
+    negocio,
+    nit,
+    direccion
   };
 
   if (!isNumber(celular) || celular.length !== 10) {
@@ -202,7 +204,7 @@ const authenticateUser = (req, res) => {
           const newDate = [date[2], date[1], date[0]].join("-");
           const periodoExpirado = useverifyDate(newDate);
           // token
-          const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10h" });
+          const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10h"});
           // enviar cookie
           res.cookie("aut", token, { path: "/", httpOnly: true });
           res.json({
@@ -245,7 +247,7 @@ const recoverPassword = (req, res) => {
       if (result.success) {
         sendEmail(correo, pass);
         res.json({
-          message: "revisa tu correo usa la contraseña y cambiala lo mas rapido posible",
+          message: "tu contraseña se cambio correctamente, revisa tu correo y cambiala lo mas pronto posible ",
           success: true
         });
       } else {
