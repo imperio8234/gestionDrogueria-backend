@@ -5,7 +5,6 @@ CREATE TABLE administrador(
     id_usuario BIGINT NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(250) NOT NULL,
     correo VARCHAR(250) NOT NULL,
-    email VARCHAR(250) NOT NULL,
     nit BIGINT,
     direccion VARCHAR(400), 
     celular VARCHAR(250) NOT NULL,

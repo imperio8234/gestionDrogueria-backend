@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 // VARIABLES DE ENTORNO
 const DB_PORT = process.env.DB_PORT || 2000;
 const corsOptions = {
-  origin: "https://drogueriahumanitaria.netlify.app/",
+  origin: "*",
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 };
