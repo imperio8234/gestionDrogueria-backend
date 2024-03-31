@@ -385,7 +385,7 @@ Content-Type: application/json
 
 {
     "idGasto" : "123",
-    "idUsuario" : "2",
+    "idUsuario" : 2,
     "descripcion" : "hola a todos",
     "valorGasto" : "12222",
     "fecha" : "8/09/2021"

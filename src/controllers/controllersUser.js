@@ -72,7 +72,7 @@ const createUsers = (req, res) => {
     inicio: new Date().getDate(),
     clave: random(1000, 9000),
     negocio,
-    nit,
+    nit: nit?nit:0,
     direccion
   };
 
@@ -108,6 +108,7 @@ const createUsers = (req, res) => {
         }
       })
       .catch(err => {
+        console.log(err)
         if (err) {
           res.status(500).json({
             message: "hay un error",

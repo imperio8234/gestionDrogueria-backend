@@ -1,5 +1,5 @@
 CREATE DATABASE villa;
-use villa
+use villa;
 
 CREATE TABLE administrador(
     id_usuario BIGINT NOT NULL AUTO_INCREMENT,
@@ -37,7 +37,7 @@ CREATE TABLE productos(
 
 CREATE TABLE productos_historial(
     id_compra BIGINT not null AUTO_INCREMENT,
-    id_producto BIGINT NOT NULL AUTO_INCREMENT,
+    id_producto BIGINT NOT NULL,
     id_deuda BIGINT NOT null,
     unidades INT NOT NULL,
     distribuidor VARCHAR(400),
@@ -60,7 +60,6 @@ CREATE TABLE deudas(
     id_usuario BIGINT NOT NULL,
     nombre VARCHAR(250) NOT NULL,
     celular VARCHAR(250) NOT NULL,
-    valor BIGINT NOT NULL,
     fecha VARCHAR(250) NOT NULL,
     PRIMARY KEY (id_deuda),
     FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
@@ -69,7 +68,7 @@ CREATE TABLE deudas(
 CREATE TABLE abonos(
     id_abono BIGINT NOT NULL AUTO_INCREMENT,
     id_usuario BIGINT not null,
-    id_deuda INT NOT NULL,
+    id_deuda BIGINT NOT NULL,
     fecha VARCHAR(250) NOT NULL,
     valor BIGINT NOT NULL,
     PRIMARY KEY (id_abono),
@@ -168,10 +167,12 @@ CREATE TABLE gastos(
     id_usuario BIGINT NOT NULL,
     fecha VARCHAR(400) NOT NULL,
     descripcion VARCHAR(600),
-    valor BIGINT NOT NULL,
+    valor_gasto BIGINT NOT NULL,
+    categoria VARCHAR(200) NOT NULL,
     PRIMARY KEY (id_gasto),
-    CONSTRAINT fk_id_gasto FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
+    CONSTRAINT fk_id_usuariog FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
+
 
 -- Tabla de lista
 
@@ -190,16 +191,6 @@ CREATE TABLE lista (
     CONSTRAINT fk_lista FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS gastos (
-    id_gasto BIGINT not null AUTO_INCREMENT primary KEY,
-    id_usuario BIGINT not null,
-    descripcion VARCHAR(1000),
-    valor_gasto BIGINT not null,
-    categoria VARCHAR(100) NOT NULL,
-    fecha VARCHAR(500),
-    CONSTRAINT fk_gasto FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario)
-    ON DELETE CASCADE
-);
 
 CREATE TABLE IF NOT EXISTS compras_fuera_inventario (
     id_compra BIGINT not null AUTO_INCREMENT primary KEY,
@@ -217,7 +208,7 @@ CREATE TABLE IF NOT EXISTS fiado (
     descripcion VARCHAR(100),
     fecha VARCHAR(100) not null,
     valor BIGINT,
-    CONSTRAINT FK_fiado FOREIGN KEY (id_credito) REFERENCES deudas(id_credito)
+    CONSTRAINT FK_fiado FOREIGN KEY (id_credito) REFERENCES creditos(id_credito)
     ON DELETE CASCADE
 );
 

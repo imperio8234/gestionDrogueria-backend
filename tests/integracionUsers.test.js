@@ -32,6 +32,16 @@ const userUpdate= {
     nit: 2222222,
     direccion: 'el barrio nuevo '
 }
+
+//modulo gasto
+const gasto ={
+    idGasto : "123",
+    idUsuario : 2,
+    descripcion : "hola a todos",
+    valorGasto : "12222",
+    fecha : "8/09/2021",
+    categoria: "ropa"
+}
 let token 
  let id;
 // conexion 
@@ -92,6 +102,17 @@ describe("POST /api/v1/user/aut", () => {
         const response = await request(app).get("/api/v1/productos/1").set("Cookie", token[0].split(";")[0])
         expect(response.status).toBe(200)
         expect
+    })
+ })
+
+
+
+ //_---------- modulo gastos --------
+ describe("POST /api/v1/gastos/creargastos", () => {
+    test("crear gasto", async () => {
+        const response = await request(app).post("/api/v1/gastos/creargastos").set("Cookie", token[0].split(";")[0]).send(gasto)
+        expect(response.status).toBe(200)
+        console.log(response.body)
     })
  })
 
