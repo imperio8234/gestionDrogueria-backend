@@ -1,4 +1,5 @@
 const { GetAllCustomersDB, CreateCustomersDB, UdateCustomersDB, DeleteCustomersDB, findCustomersDB } = require("../services/creditsServies");
+const getDate = require("../toolsDev/getDate");
 const isNumber = require("../toolsDev/isNumber");
 
 const CreateCustomers = (req, res) => {
@@ -8,7 +9,7 @@ const CreateCustomers = (req, res) => {
     idUsuario,
     nombre,
     phoneNumber,
-    date
+    date: getDate()
   };
 
   if (idUsuario && isNumber(phoneNumber) && nombre) {
@@ -106,7 +107,7 @@ const UpdateCustomers = (req, res) => {
   const updateCustomer = {
     nombre,
     idCredito,
-    fecha,
+    fecha: getDate(),
     celular
   };
   UdateCustomersDB(updateCustomer)

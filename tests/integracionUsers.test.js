@@ -116,6 +116,15 @@ describe("POST /api/v1/user/aut", () => {
     })
  })
 
+ //optener gastos 
+ describe("POST /api/v1/gastos/", () => {
+    test("crear gasto", async () => {
+        const response = await request(app).post("/api/v1/gastos/creargastos").set("Cookie", token[0].split(";")[0]).send(gasto)
+        expect(response.status).toBe(200)
+        console.log(response.body)
+    })
+ })
+
 afterAll(() => {
  conexion.query("DELETE FROM administrador where nombre = 'pedro' ",  (err) => {
           if (err) {

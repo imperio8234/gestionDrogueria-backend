@@ -4,6 +4,7 @@ const {
   deletesubtractCreditRecordDB,
   createsubtractCreditRecordDB
 } = require("../services/subtractCreditRecordServices");
+const getDate = require("../toolsDev/getDate");
 const isNumber = require("../toolsDev/isNumber");
 
 const GetAllsubtractCreditRecord = (req, res) => {
@@ -80,7 +81,7 @@ const createsubtractCreditRecord = (req, res) => {
   const { idCredito, fecha, valor } = req.body;
   const record = {
     idCredito,
-    fecha,
+    fecha: getDate(),
     valor
   };
 

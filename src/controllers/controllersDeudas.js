@@ -1,4 +1,5 @@
 const { CreatedeudaDB, GetAlldeudaDB, DeletedeudaDB, UpdatedeudaDB, findDeudaDB } = require("../services/deudasServices");
+const getDate = require("../toolsDev/getDate");
 
 const CreateDeudas = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
@@ -7,7 +8,7 @@ const CreateDeudas = (req, res) => {
     idUsuario,
     nombre,
     celular,
-    date
+    date: getDate()
   };
   CreatedeudaDB(customer)
     .then(result => {
@@ -112,7 +113,7 @@ const UpdateDeudas = (req, res) => {
   const updateCustomer = {
     nombre,
     idCredito,
-    fecha,
+    fecha: getDate(),
     celular
   };
   UpdatedeudaDB(updateCustomer)

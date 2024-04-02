@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 const { GetAllRecordDB, CreateRecordDB, UdateRecordDB, DeleteRecordDB } = require("../services/addCreditsRecordServices");
+const getDate = require("../toolsDev/getDate");
 
 const CreateRecord = (req, res) => {
   const record = req.body;
@@ -84,7 +85,7 @@ const UpdateRecord = (req, res) => {
   const { fecha, idRecord, producto, valor } = req.body;
 
   const updateRecord = {
-    fecha,
+    fecha : getDate(),
     idRecord,
     producto,
     valor

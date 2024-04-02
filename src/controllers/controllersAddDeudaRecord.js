@@ -1,10 +1,11 @@
 const { GetAllDeudaDB, CreateDeudaDB, UdateDeudaDB, DeleteDeudaDB } = require("../services/servicesAddDeudaRecord");
+const getDate = require("../toolsDev/getDate");
 
 const CreateDeuda = (req, res) => {
   const { idDeuda, fecha, producto, valor } = req.body;
   const Deuda = {
     idDeuda,
-    fecha,
+    fecha: getDate(),
     producto,
     valor
   };
@@ -84,7 +85,7 @@ const UpdateDeuda = (req, res) => {
   const { fecha, idDeuda, producto, valor } = req.body;
 
   const updateDeuda = {
-    fecha,
+    fecha : getDate(),
     idDeuda,
     producto,
     valor

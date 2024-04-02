@@ -1,4 +1,5 @@
 const { crearVentaDB, getVentasDB, getProductosDB, buscarProductoDB, getAllVentasDB, getGraficosDB } = require("../services/ventasServices");
+const getDate = require("../toolsDev/getDate");
 
 const crearVenta = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
@@ -10,7 +11,7 @@ const crearVenta = (req, res) => {
     pagaCon,
     devolucion,
     valorTotal,
-    fecha: new Date().toLocaleDateString()
+    fecha: getDate()
   };
   crearVentaDB(venta, productosVendidos)
     .then(result => {

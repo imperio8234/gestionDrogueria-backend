@@ -4,6 +4,7 @@ const {
   deletesubtractDeudaRecordDB,
   createsubtractDeudaRecordDB
 } = require("../services/servicesSubstrectDeudaRecord");
+const getDate = require("../toolsDev/getDate");
 
 const GetAllsubtractDeudaRecord = (req, res) => {
   const idDeuda = req.params.id;
@@ -36,7 +37,7 @@ const GetAllsubtractDeudaRecord = (req, res) => {
 const updatesubtractDeudaRecord = (req, res) => {
   const { fecha, idRecord, valor } = req.body;
   const updateRecord = {
-    fecha,
+    fecha: getDate(),
     idRecord,
     valor
   };
@@ -82,7 +83,7 @@ const createsubtractDeudaRecord = (req, res) => {
   const record = {
     idUsuario,
     idDeuda,
-    fecha,
+    fecha: getDate(),
     valor
   };
   if (valor < 0) {

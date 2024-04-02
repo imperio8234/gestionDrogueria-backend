@@ -1,3 +1,4 @@
+const getDate = require("../toolsDev/getDate");
 const conexion = require("../toolsDev/midelware/bd_conection");
 
 const GetAllRecordDB = (id, pagina) => {
@@ -47,7 +48,7 @@ const UdateRecordDB = (data) => {
 const CreateRecordDB = (record) => {
   return new Promise((resolve, reject) => {
     record.map(producto => {
-      return conexion.query("insert into suma_credito set id_producto =?, id_venta =?, producto =?, unidades =?, valor =?, laboratorio=?, id_usuario=?, precio=?, id_credito =?, fecha = ?", [producto.id_producto, producto.idVenta, producto.nombre, producto.unidades, producto.valor_total, producto.laboratorio, producto.id_usuario, producto.precio, producto.idCredito, producto.fecha], (err, row) => {
+      return conexion.query("insert into suma_credito set id_producto =?, id_venta =?, producto =?, unidades =?, valor =?, laboratorio=?, id_usuario=?, precio=?, id_credito =?, fecha = ?", [producto.id_producto, producto.idVenta, producto.nombre, producto.unidades, producto.valor_total, producto.laboratorio, producto.id_usuario, producto.precio, producto.idCredito, getDate()], (err, row) => {
         if (err) {
           reject(err);
         } else {

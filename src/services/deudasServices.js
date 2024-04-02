@@ -114,7 +114,7 @@ const CreatedeudaDB = (customer) => {
   const { idUsuario, nombre, celular, date } = customer;
 
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM deudas WHERE nombre =?", [nombre], (err, result) => {
+    conexion.query("SELECT * FROM deudas WHERE nombre =? and id_usuario = ?", [nombre, idUsuario], (err, result) => {
       if (err) {
         reject(err);
       } else {

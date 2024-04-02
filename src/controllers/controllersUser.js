@@ -7,6 +7,7 @@ const sendEmail = require("../toolsDev/sendEmail");
 const sendEmailOaut = require("../toolsDev/sendEmailOaut");
 const random = require("../toolsDev/random");
 const useverifyDate = require("../toolsDev/useVerIfyDate");
+const getDate = require("../toolsDev/getDate");
 
 const getAllUsers = (req, res) => {
   getAllUsersDB()
@@ -68,8 +69,8 @@ const createUsers = (req, res) => {
     celular,
     pass,
     activo: true,
-    fecha: new Date().toLocaleDateString(),
-    inicio: new Date().getDate(),
+    fecha: getDate(),
+    inicio: getDate(),
     clave: random(1000, 9000),
     negocio,
     nit: nit?nit:0,
