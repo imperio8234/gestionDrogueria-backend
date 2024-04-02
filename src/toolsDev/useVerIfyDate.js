@@ -8,8 +8,6 @@ const useverifyDate = (date) => {
   fechaVencimiento.setDate(fechaRegistro.getDate() + duracionSuscripcion);
 
   const diasRestantes = Math.ceil((fechaVencimiento - fechaActual) / (1000 * 60 * 60 * 24));
-  console.log(diasRestantes)
   return diasRestantes;
 };
-console.log(useverifyDate())
 module.exports = useverifyDate;
