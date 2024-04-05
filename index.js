@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 // VARIABLES DE ENTORNO
 const DB_PORT = process.env.DB_PORT || 2000;
 const corsOptions = {
-  origin: "http://64.23.174.149/", 
+  origin: "http://64.23.174.149", 
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 };

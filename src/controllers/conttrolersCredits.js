@@ -51,11 +51,16 @@ const GetCustomers = (req, res) => {
         const vCompra = result.vCompra;
         const vAbonos = result.vAbonos;
         const creditos = result.data;
+        const creditosf = result.creditosf
 
         for (let i = 0; i < creditos.length; i++) {
           const ValorAbonos = vAbonos.find(abono => abono.id_credito === creditos[i].id_credito);
           const valorCompras = vCompra.find(compra => compra.id_credito === creditos[i].id_credito);
-          creditos[i].saldo = parseInt(valorCompras !== undefined ? valorCompras.valorCompras : 0) - parseInt(ValorAbonos !== undefined ? ValorAbonos.valorAbonos : 0);
+          const valorCreditof = creditosf.find(credito => credito.id_credito === creditos[i].id_credito);
+          creditos[i].saldo =
+           (parseInt(valorCompras !== undefined ? valorCompras.valorCompras : 0) + (parseInt(valorCreditof !== undefined ? valorCreditof.valor : 0)))
+            -
+           parseInt(ValorAbonos !== undefined ? ValorAbonos.valorAbonos : 0);
           creditos[i].abonos = ValorAbonos !== undefined ? ValorAbonos.valorAbonos : 0;
           creditos[i].compras = valorCompras !== undefined ? valorCompras.valorCompras : 0;
         }

@@ -191,17 +191,6 @@ CREATE TABLE lista (
     CONSTRAINT fk_lista FOREIGN KEY (id_usuario) REFERENCES administrador(id_usuario) ON DELETE CASCADE
 );
 
-
-CREATE TABLE IF NOT EXISTS compras_fuera_inventario (
-    id_compra BIGINT not null AUTO_INCREMENT primary KEY,
-    id_deuda BIGINT not null, 
-    descripcion VARCHAR(100),
-    fecha VARCHAR(100) not null,
-    valor BIGINT,
-    CONSTRAINT FK_compras FOREIGN KEY (id_deuda) REFERENCES deudas(id_deuda)
-    ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS fiado (
     id_fiado BIGINT not null AUTO_INCREMENT primary KEY,
     id_credito BIGINT not null, 
@@ -212,5 +201,38 @@ CREATE TABLE IF NOT EXISTS fiado (
     ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS compras_fuera_inventario (
+    id_compra BIGINT not null AUTO_INCREMENT primary KEY,
+    id_deuda BIGINT not null, 
+    descripcion VARCHAR(100),
+    fecha VARCHAR(100) not null,
+    valor BIGINT,
+    id_usuario BIGINT not null,
+    metodo_pago VARCHAR(300) NOT NULL,
+    procedencia VARCHAR(400) not null,
+    CONSTRAINT FK_compras FOREIGN KEY (id_deuda) REFERENCES deudas(id_deuda)
+    ON DELETE CASCADE
+);
 
 
+CREATE TABLE cajaDiaria (
+    id_usuario BIGINT NOT NULL,
+    id_caja BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    efectivoInicial BIGINT NOT NULL,
+    efectivoCierre BIGINT,
+    fecha VARCHAR(200) NOT NULL,
+    CONSTRAINT fk_caja FOREIGN KEY (id_usuario)
+    REFERENCES administrador(id_usuario)
+    ON DELETE CASCADE
+
+);
+
+CREATE TABLE creditosf (
+    id_usuario BIGINT NOT NULL,
+    id_credito BIGINT NOT NULL,
+    id_creditof BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    valor BIGINT NOT NULL,
+    descripcion VARCHAR(300) NOT NULL,
+    fecha VARCHAR(200) NOT NULL,
+    CONSTRAINT fk_comprasf FOREIGN KEY (id_credito) REFERENCES creditos(id_credito) ON DELETE CASCADE
+);

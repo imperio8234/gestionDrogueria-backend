@@ -10,7 +10,6 @@ const GetAllsubtractDeudaRecord = (req, res) => {
   const idDeuda = req.params.id;
   const page = req.params.page;
   const idUsuario = req.usuario.id_usuario;
-  console.log(page, "esto es la pagina", idDeuda)
   GetAllsubtractDeudaRecordDB(idDeuda, idUsuario, page)
     .then(result => {
       if (result.success) {

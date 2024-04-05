@@ -28,8 +28,27 @@ const GetAllCustomersDB = (id, pagina) => {
                 if (err) {
                   reject(err.message);
                 } else {
-                  // sumatoria de todos los valores
-                  resolve({ success: true, data: result, paginas: pages[0], vCompra, vAbonos });
+
+                  // peticion de los creditosf
+                  conexion.query(`
+                  select 
+                   sum(valor) valor,
+                   id_credito
+                  from 
+                   creditosf
+                  where
+                   id_usuario =?
+                   group by id_credito;
+                  `, [id], (err, creditosf) => {
+                    if (err) {
+                      reject(err);
+                      return;
+                    }
+                                      // sumatoria de todos los valores
+                  resolve({ success: true, data: result, paginas: pages[0], vCompra, vAbonos, creditosf });
+
+
+                  })
                 }
               });
             }

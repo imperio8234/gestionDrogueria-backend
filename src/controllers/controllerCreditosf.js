@@ -1,38 +1,36 @@
-const { crearComprafDB, modificarComprafDB, optenerComprafDB, eliminarComprafDB } = require("../services/servicesCompraFueraInventario");
+const { modificarcreditofDB, crearcreditofDB, eliminarcreditofDB, optenercreditofDB } = require("../services/creditosfServices");
 const getDate = require("../toolsDev/getDate");
 const isNumber = require("../toolsDev/isNumber");
 const random = require("../toolsDev/random");
 
-const crearCompraf = (req, res) => {
+const crearCreditof = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { descripcion, valorCompraf, idDeuda, metodoPago, procedencia } = req.body;
+  const { descripcion, valorCreditof, idCredito } = req.body;
 
   // verificacion de datos
-  if (!descripcion || !valorCompraf) {
+  if (!descripcion || !valorCreditof) {
     res.status(404).json({
       message: "el valor o descripcion son incompletos",
       success: false
     });
     return;
-  } else if (!isNumber(valorCompraf)) {
+  } else if (!isNumber(valorCreditof)) {
     res.status(404).json({
       message: "existe informacion erronea",
       success: false
     });
     return;
   }
-  const compraf = {
-    idCompraf: random(1000, 9000),
-    idDeuda,
+  const Creditof = {
+    idCreditof: random(1000, 9000),
+    idCredito,
     idUsuario,
     descripcion,
-    valorCompraf,
-    metodoPago, 
-    procedencia,
+    valorCreditof,
     fecha: getDate()
   };
     // introduccion de datos
-  crearComprafDB(compraf)
+  crearcreditofDB(Creditof)
     .then((result) => {
       res.status(200).json({
         message: "exito",
@@ -50,11 +48,10 @@ const crearCompraf = (req, res) => {
     });
 };
 
-const modificarCompraf = (req, res) => {
+const modificarCreditof = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   const data = req.body;
-
-  modificarComprafDB(idUsuario, data)
+  modificarcreditofDB(idUsuario, data)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -74,17 +71,17 @@ const modificarCompraf = (req, res) => {
     });
 };
 
-const optenerCompraf = (req, res) => {
+const optenerCreditof = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const fecha = req.params.fecha;
-  const idDeuda = req.params.id;
+  const idCredito = req.params.id;
   const pagina = req.params.pagina;
 
-  optenerComprafDB(idUsuario, fecha, idDeuda, pagina)
+  optenercreditofDB(idUsuario, idCredito, pagina)
     .then((result) => {
       if (result) {
         res.status(200).json({
           data: result,
+          valorTotal: result.vCreditosf[0].valor,
           success: true
         });
       }
@@ -99,10 +96,10 @@ const optenerCompraf = (req, res) => {
     });
 };
 
-const eliminarCompraf = (req, res) => {
+const eliminarCreditof = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const idCompraf = req.params.id;
-  eliminarComprafDB(idCompraf, idUsuario)
+  const idCreditof = req.params.id;
+  eliminarcreditofDB(idCreditof, idUsuario)
     .then((result) => {
       if (result) {
         res.status(200).json({
@@ -123,8 +120,8 @@ const eliminarCompraf = (req, res) => {
 };
 
 module.exports = {
-  crearCompraf,
-  modificarCompraf,
-  optenerCompraf,
-  eliminarCompraf
+  crearCreditof,
+  modificarCreditof,
+  optenerCreditof,
+  eliminarCreditof
 };

@@ -1,9 +1,9 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 const crearComprafDB = (gasto) => {
-  const { idCompraf, idUsuario, descripcion, valorCompraf, fecha, idDeuda } = gasto;
+  const { idCompraf, idUsuario, descripcion, valorCompraf, fecha, idDeuda, procedencia, metodoPago } = gasto;
   return new Promise((resolve, reject) => {
-    conexion.query("insert into compras_fuera_inventario (id_compra, id_usuario, descripcion, valor, fecha, id_deuda) VALUES (?,?,?,?,?,?)",
-      [idCompraf, idUsuario, descripcion, valorCompraf, fecha, idDeuda], (err, result) => {
+    conexion.query("insert into compras_fuera_inventario (id_compra, id_usuario, descripcion, valor, fecha, id_deuda, procedencia, metodo_pago) VALUES (?,?,?,?,?,?,?,?)",
+      [idCompraf, idUsuario, descripcion, valorCompraf, fecha, idDeuda, procedencia, metodoPago], (err, result) => {
         if (err) {
           reject(err);
         } else {
