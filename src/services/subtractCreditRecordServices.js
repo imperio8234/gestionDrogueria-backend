@@ -44,21 +44,33 @@ const deletesubtractCreditRecordDB = (id) => {
 const createsubtractCreditRecordDB = (record, idUsuario) => {
   const { fecha, valor, idCredito } = record;
   return new Promise((resolve, reject) => {
-    conexion.query("select valor from suma_credito where id_credito=?", [idCredito], (err, valoresCredito) => {
+    conexion.query("select valor from suma_credito where id_credito=? and id_usuario = ?", [idCredito, idUsuario], (err, valoresCredito) => {
       if (err) {
         reject(err.message);
       } else {
-        conexion.query("select valor from abonos_credito where id_credito=?", [idCredito], (err, valoresAbonos) => {
+        conexion.query("select valor from abonos_credito where id_credito=? and id_usuario = ?", [idCredito, idUsuario], (err, valoresAbonos) => {
           if (err) {
             reject(err);
           } else {
-            const valores = [].concat(...valoresCredito.map(valor => parseInt(valor.valor)));
+            conexion.query(`
+             select 
+              sum(valor) valor
+             from
+              creditosf
+             where 
+              id_usuario = ?
+            `, [idUsuario], (err, abonosCref) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              const valores = [].concat(...valoresCredito.map(valor => parseInt(valor.valor)));
             const valores2 = [].concat(...valoresAbonos.map(valor => parseInt(valor.valor)));
             const totales1 = valores.reduce((a, b) => a + b, 0);
             const totales2 = valores2.reduce((a, b) => a + b, 0);
-            if (totales1 - totales2 <= 0) {
+            if ((totales1 + abonosCref[0].valor) - totales2 <= 0) {
               resolve({ success: false, message: "no tienes pendientes" });
-            } else if (valor > totales1) {
+            } else if (valor > (totales1 + abonosCref[0].valor)) {
               resolve({ success: false, message: "su abono excede el credito" });
             } else {
               conexion.query("INSERT INTO abonos_credito SET ?", [{ fecha, valor, id_credito: idCredito, id_usuario: idUsuario }], (err, row) => {
@@ -69,6 +81,8 @@ const createsubtractCreditRecordDB = (record, idUsuario) => {
                 }
               });
             }
+
+            })
           }
         });
       }
