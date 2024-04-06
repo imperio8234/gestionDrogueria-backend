@@ -38,22 +38,19 @@ const GetDeudas = (req, res) => {
   const page = req.params.page;
   GetAlldeudaDB(idUsuario, page)
     .then(result => {
+      const vComprasf = result.vCompraf;
+      const compras = result.compras;
+
       if (!result.data.length <= 0) {
-        /* const data = result.data.data;
-        const saldo = result.data.saldoPendiente;
-
-        const newData = data.map((item) => {
-          const saldoPe = saldo.find(saldo => saldo.id_deuda === item.id_deuda);
-
-          item.saldoPendiente = saldoPe ? parseInt(saldoPe.total_abonos) : 0;
-          return { ...item };
-        });
-     */
         const newData = result.data.map(item => {
-          const compra = result.compras.find(compra => compra.id_deuda === item.id_deuda);
+          const vComprasfTotal = vComprasf.find(compra => compra.id_deuda === item.id_deuda);
+          const compra = compras.find(compra => compra.id_deuda === item.id_deuda);
           const abonos = result.abonos.find(abono => abono.id_deuda === item.id_deuda);
-
-          item.saldoPendiente = parseInt(compra === undefined ? 0 : compra.compras) - parseInt(abonos === undefined ? 0 : abonos.abonos);
+          
+          item.saldoPendiente = 
+          ((compra === undefined ? 0 : parseInt(compra.compras)) + 
+          (vComprasfTotal == undefined?0:parseInt(vComprasfTotal.valor))) -
+           parseInt(abonos === undefined ? 0 : abonos.abonos);
           item.compras = parseInt(compra === undefined ? 0 : compra.compras);
           item.abonos = parseInt(abonos === undefined ? 0 : abonos.abonos);
 
@@ -79,6 +76,7 @@ const GetDeudas = (req, res) => {
       }
     })
     .catch(err => {
+      console.log(err)
       if (err) {
         res.status(500).json({
           message: err,

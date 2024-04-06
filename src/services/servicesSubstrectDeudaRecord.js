@@ -58,17 +58,33 @@ const createsubtractDeudaRecordDB = (record) => {
       if (err) {
         reject(err.message);
       } else {
-        if (parseInt(valor) > valores[0].totalAbonos) {
-          resolve({ success: false, message: `solo tienes que pagar ${valores[0].totalAbonos}` });
-        } else {
-          conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_deuda: idDeuda, id_usuario: idUsuario }], (err, row) => {
-            if (err) {
-              reject(err.message);
-            } else {
-              resolve({ success: true });
-            }
-          });
-        }
+        conexion.query(`
+        select 
+         sum(valor) valor
+       from 
+        compras_fuera_inventario
+        where 
+         id_usuario = ?
+       and 
+        metodo_pago = "compra a credito"`, [idUsuario], (err, compraf) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          const valorCompraf = parseInt(compraf[0].valor)
+          if (parseInt(valor) > (parseInt(valores[0].totalAbonos)+ valorCompraf)) {
+            resolve({ success: false, message: `el valor excede la deuda` });
+          } else {
+            conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_deuda: idDeuda, id_usuario: idUsuario }], (err, row) => {
+              if (err) {
+                reject(err.message);
+              } else {
+                resolve({ success: true });
+              }
+            });
+          }
+        })
+        
       }
     });
   });

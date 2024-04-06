@@ -19,7 +19,8 @@ const GetAlldeudaDB = (idUsuario, pagina) => {
               ifnull(sum(costo * unidades), 0) compras 
             from 
               productos_historial 
-              where id_usuario = ?
+              where 
+              id_usuario = ?
               and 
               metodo_pago = "compra a credito"
             group by id_deuda
@@ -41,7 +42,25 @@ const GetAlldeudaDB = (idUsuario, pagina) => {
                   if (err) {
                     reject(err);
                   }
-                  resolve({ success: true, data: result, compras, abonos, paginas: pages[0] });
+                  conexion.query(`
+                    select 
+                     sum(valor) valor,
+                     id_deuda
+                    from
+                     compras_fuera_inventario
+                    where 
+                     id_usuario = ?
+                    and 
+                     metodo_pago = "compra a credito"
+                     group by id_deuda
+                    `, [idUsuario], (err, vCompraf) => {
+                      if (err) {
+                        reject(err);
+                        return;
+                      }
+                      resolve({ success: true, data: result, compras, abonos, paginas: pages[0], vCompraf });
+
+                    })
                 });
               }
             });
