@@ -479,4 +479,4 @@ Content-Type: application/json
  }
 
 #### eliminar
- DELETE http://localhost:2000/api/v1/creditosf HTTP/1.1
+ DELETE http://localhost:2000/api/v1/creditosf/8661 HTTP/1.1

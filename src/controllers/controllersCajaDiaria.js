@@ -83,7 +83,7 @@ const optenercajaDiaria = (req, res) => {
   const pagina = req.params.pagina;
   optenercajaDiariaDB(idUsuario, fecha, pagina)
     .then((result) => {
-      if (result) {
+      if (result.success) {
         const compras = result.compras;
         const gastos = result.gastos;
         const creditosf = result.creditosf;
@@ -126,7 +126,15 @@ const optenercajaDiaria = (req, res) => {
           totalMesActual,
           success: true
         });
+      }else {
+        res.status(404).json({
+          success:false,
+          message: "no hay registros"
+        })
       }
+      
+      
+
     })
     .catch((err) => {
       if (err) {

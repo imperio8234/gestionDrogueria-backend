@@ -64,18 +64,19 @@ const modificarcajaDiariaDB = (idUsuario, data) => {
 const optenercajaDiariaDB = (idUsuario, fecha, pagina) => {
   const año = fecha.split("y")[1];
   const mes = fecha.split("y")[0];
-
+  const page = (pagina - 1) * 30;
   const consultarCaja = `
-  SELECT *
+  SELECT 
+  *
   FROM cajaDiaria
   WHERE 
   id_usuario = ?
-  AND MONTH(STR_TO_DATE(fecha, '%d/%m/%Y'))  in(${mes})
+  AND MONTH(STR_TO_DATE(fecha, '%d/%m/%Y'))  in(?)
   AND STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN ? and ?
   LIMIT 30
   OFFSET ?;`;
 
-const values = [idUsuario,`${año}-01-01`, `${año}-12-31`, parseInt(pagina)];
+const values = [idUsuario, mes ,`${año}-01-01`, `${año}-12-31`, parseInt(page)];
 
   return new Promise((resolve, reject) => {
     conexion.query(consultarCaja, values, (err, cajas) => {
@@ -83,10 +84,15 @@ const values = [idUsuario,`${año}-01-01`, `${año}-12-31`, parseInt(pagina)];
         reject(err)
         return;
       }
-       
+
       // fechas para consultas 
       const fechas = [].concat(...cajas.map(caja => caja.fecha));
       const fechasSinDuplicados = [...new Set(fechas)];
+    
+      if (fechasSinDuplicados.length <= 0) {
+        resolve({message: "no existen registros", success: false})
+        return;
+      }
       conexion.query(`
       select 
        *
@@ -168,6 +174,7 @@ const values = [idUsuario,`${año}-01-01`, `${año}-12-31`, parseInt(pagina)];
                 }
                 
                 resolve({
+                  success:true,
                   cajas: cajas.length <= 0 ? [{fecha:""}]:cajas,
                   compras: compras.length <= 0?[{fecha:"",valor:0}]:compras,
                   gastos: gastos.length <= 0? [{fecha:"", valor_gasto:0}]:gastos, 
