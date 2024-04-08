@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 // VARIABLES DE ENTORNO
 const DB_PORT = process.env.DB_PORT || 2000;
 const corsOptions = {
-  origin: "https://64.23.174.149", 
+  origin: "https://villacontrol.xyz", 
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 };

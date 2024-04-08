@@ -1,4 +1,4 @@
-const { createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB, updateUsersDB, getAllUsersDB, getUserDB } = require("../services/userServices");
+const {cambiarContraseñaDB, createUsersDB, authenticateUserDB, deleteUsersDB, recoverPasswordDB, updateUsersDB, getAllUsersDB, getUserDB } = require("../services/userServices");
 const isNumber = require("../toolsDev/isNumber");
 const bcrypt = require("bcryptjs");
 const isEmail = require("../toolsDev/isEmail");
@@ -177,18 +177,46 @@ const authenticateUser = (req, res) => {
     correo,
     contraseña
   };
-  if (!isEmail(correo)) {
-    res.json({
-      message: "ingresa un correo valido",
-      success: false
-    });
-  } else if (contraseña.length < 9) {
-    res.json({
-      message: "tu contraseña debe tener 9 caracteres",
-      success: false
-    });
+
+  if (isEmail(correo)) {
+    if (!isEmail(correo)) {
+      res.json({
+        message: "ingresa un correo valido",
+        success: false
+      });
+      return;
+    } 
+
+    if (contraseña.length < 9) {
+      res.json({
+        message: "tu contraseña debe tener 9 caracteres",
+        success: false
+      });
+      return;
+    } 
+    aut(user)
   } else {
-    authenticateUserDB(user)
+    if (!isNumber(correo)) {
+      res.json({
+        message: "ingresa un numero de celular valido",
+        success: false
+      })
+      return;
+    }
+    if (contraseña.length < 9) {
+      res.json({
+        message: "tu contraseña debe tener 9 caracteres",
+        success: false
+      });
+      return;
+    } 
+    aut(user);
+  }
+  
+  
+   // funcion para la 
+    function aut (data) {
+      authenticateUserDB(data)
       .then(result => {
         if (result.success) {
           const data = {
@@ -230,7 +258,8 @@ const authenticateUser = (req, res) => {
           });
         }
       });
-  }
+    }
+  
 };
 
 const recoverPassword = (req, res) => {
@@ -266,6 +295,36 @@ const recoverPassword = (req, res) => {
     });
 };
 
+const cambiarContraseña = (req, res) => {
+  const {newPass, currentPass} = req.body;
+  const idUsuario = req.usuario.id_usuario
+  const pasToString = newPass.toString()
+  const contraseña = bcrypt.hashSync(pasToString, 10);
+  cambiarContraseñaDB(contraseña, currentPass, idUsuario)
+  .then((result) => {
+    if (result.success) {
+      res.status(200).json({
+        message:"se actualizo correctamente tu contraseña",
+        success: true
+      })
+    } else {
+      res.status(400).json({
+        message: "La contraseña ingresada no coincide con la confirmación de la contraseña. Por favor, verifica tus contraseñas e intenta nuevamente.",
+        success: false
+      })
+      
+    }
+  })
+  .catch((err) => {
+    if (err) {
+      res.json({
+        message: err,
+        success: false
+      })
+    }
+  })
+
+}
 module.exports = {
   getAllUsers,
   createUsers,
@@ -273,6 +332,7 @@ module.exports = {
   deleteUsers,
   authenticateUser,
   recoverPassword,
-  getUser
+  getUser,
+  cambiarContraseña
 
 };

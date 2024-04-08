@@ -1,5 +1,6 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 const bcrypt = require("bcryptjs");
+const isEmail = require("../toolsDev/isEmail");
 
 const getAllUsersDB = () => {
   return new Promise((resolve, reject) => {
@@ -82,7 +83,13 @@ const authenticateUserDB = (user) => {
   const { correo, contraseña } = user;
 
   return new Promise((resolve, reject) => {
-    conexion.query("SELECT * FROM administrador WHERE correo =? ", [correo], (err, result) => {
+    conexion.query(
+      isEmail(correo)?
+      "SELECT * FROM administrador WHERE correo =? "
+      :
+      "select * from administrador where celular = ?"
+      
+      , [correo], (err, result) => {
       if (err) {
         reject(err.message);
       } else {
@@ -126,6 +133,47 @@ const recoverPasswordDB = (update) => {
   });
 };
 
+const cambiarContraseñaDB = (newPass, currentPass, idUsuario) => {
+
+  return new Promise ((resolve, reject) => {
+    conexion.query(`
+    select 
+     contraseña
+    from
+     administrador
+    where 
+     id_usuario = ?
+    `, [idUsuario], (err, contraseña) => {
+      if (err) {
+        reject(err)
+        return;
+      }
+      const currentPassDb = contraseña[0].contraseña;
+      const isCurrentPass = bcrypt.compareSync(currentPass,currentPassDb);
+      if (!isCurrentPass) {
+         resolve({success: false})
+        return;
+      } 
+      conexion.query(`
+      update 
+       administrador
+      set 
+       contraseña = ?
+      where 
+       id_usuario =?
+      `, [newPass, idUsuario], (err, result) => {
+        if(err) {
+          reject(err);
+          return;
+        }
+
+        resolve({success: true})
+      })
+    })
+     
+  })
+}
+
 module.exports = {
   getAllUsersDB,
   recoverPasswordDB,
@@ -133,6 +181,7 @@ module.exports = {
   deleteUsersDB,
   updateUsersDB,
   createUsersDB,
-  getUserDB
+  getUserDB,
+  cambiarContraseñaDB
 
 };

@@ -74,7 +74,7 @@ const UpdateListaDB = (producto) => {
             if (parseInt(unidad[0].unidades) <= unidades) {
               resolve({ success: false, message: "no hay existencias" });
             } else {
-              conexion.query("update lista set unidades=?, valor_total=? where id_usuario=? and id_producto =?, porcentageIva=?", [unidades, valorTotal, idUsuario, idProducto, porcentageIva],
+              conexion.query("update lista set unidades=?, valor_total=? where id_usuario=? and id_producto =?", [unidades, valorTotal, idUsuario, idProducto, porcentageIva],
                 (err, result) => {
                   if (err) {
                     reject(err);

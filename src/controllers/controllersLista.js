@@ -88,6 +88,7 @@ const updateLista = (req, res) => {
       }
     })
     .catch(err => {
+      console.log(err)
       if (err) {
         res.status(500).json({
           message: "error",
