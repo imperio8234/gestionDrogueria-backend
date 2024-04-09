@@ -1,9 +1,11 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 const crearcreditofDB = (credito) => {
+
   const { idCreditof, idUsuario, descripcion, valorCreditof, fecha, idCredito } = credito;
+  const fechaFormat = fecha.split("-").reverse().join("/");
   return new Promise((resolve, reject) => {
     conexion.query("insert into creditosf (id_creditof, id_usuario, descripcion, valor, fecha, id_credito) VALUES (?,?,?,?,?,?)",
-      [idCreditof, idUsuario, descripcion, valorCreditof, fecha, idCredito], (err, result) => {
+      [idCreditof, idUsuario, descripcion, valorCreditof, fechaFormat, idCredito], (err, result) => {
         if (err) {
           reject(err);
         } else {
