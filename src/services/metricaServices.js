@@ -112,7 +112,8 @@ const optenerComprasYventasDB = (idUsuario, fecha) => {
   return new Promise((resolve, reject) => {
     conexion.query(`
     select 
-      ifnull(sum((costo * unidades)), 0) compras_totales
+      (ifnull(sum((costo * unidades)), 0) + (select ifnull(sum(valor), 0) valor from  compras_fuera_inventario where id_usuario = ? ;
+      )) compras_totales
     from 
       productos_historial
     where 
@@ -128,20 +129,32 @@ const optenerComprasYventasDB = (idUsuario, fecha) => {
       conexion.query(`
         
    select
-     (sum(costo * unidades) -
-      (select 
-         ifnull(sum(valor), 0) valor
-       from
-        abonos
+     (
+      (ifnull(sum(costo * unidades), 0) 
+     + 
+       (select 
+         ifnull(sum(valor), 0) valor 
+       from  
+         compras_fuera_inventario
        where 
-        id_usuario = ? )) valor
+          id_usuario = ?
+         and 
+          metodo_pago = "compra a credito")
+         )
+          -
+          (select 
+            ifnull(sum(valor), 0) valor
+          from
+            abonos
+          where 
+           id_usuario = ? )) valor
    from 
     productos_historial 
    where 
      metodo_pago = "compra a credito"
      and id_usuario = ?
         `,
-      [idUsuario, idUsuario],
+      [idUsuario, idUsuario, idUsuario, idUsuario],
       (err, comprasSinPagar) => {
         if (err) {
           reject(err);
@@ -163,7 +176,7 @@ const optenerComprasYventasDB = (idUsuario, fecha) => {
           }
           conexion.query(`
                 SELECT
-                ifnull(sum(sc.valor) - abonos.valor, 0) saldoCreditos ,
+                ifnull((ifnull(sum(sc.valor),0) + ifnull((select sum(valor) from  creditosf where id_usuario = ?),0) ) - abonos.valor, 0) saldoCreditos ,
                 ifnull(abonos.valor, 0) abonos
                FROM
                   suma_credito sc,
@@ -189,7 +202,7 @@ const optenerComprasYventasDB = (idUsuario, fecha) => {
                           group by abonos.valor   
                    ;
                 `,
-          [idUsuario, idUsuario],
+          [idUsuario, idUsuario, idUsuario],
           (err, creditos) => {
             if (err) {
               reject(err);
@@ -210,6 +223,23 @@ const optenerComprasYventasDB = (idUsuario, fecha) => {
               if (err) {
                 reject(err);
               }
+              conexion.query(`
+              select 
+              ifnull(sum(valor), 0) - ifnull((select
+                       sum(valor) 
+                      from  
+                       abonos_credito 
+                      where 
+                       id_usuario = ?),0) valor
+             from 
+               creditosf 
+             where 
+               id_usuario = ?
+               ;
+               
+              `, [idUsuario, idUsuario], (err, creditosf) => {
+
+              })
 
               resolve({ comprasSinPagar, compras, ventas, gastos, creditos });
             });

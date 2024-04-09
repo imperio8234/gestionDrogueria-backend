@@ -63,9 +63,11 @@ const optenercreditofDB = (idUsuario, idCredito, pagina) => {
          sum(valor) valor
         from 
          creditosf
-        where 
+        where
+         id_credito= ? 
+        and
          id_usuario = ?
-        `, [idUsuario], (err, vCreditosf) => {
+        `, [ parseInt(idCredito), idUsuario], (err, vCreditosf) => {
           if (err) {
             reject(err);
             return;

@@ -5,7 +5,7 @@ const random = require("../toolsDev/random");
 
 const crearCreditof = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { descripcion, valorCreditof, idCredito } = req.body;
+  const { descripcion, valorCreditof, idCredito, fecha } = req.body;
 
   // verificacion de datos
   if (!descripcion || !valorCreditof) {
@@ -27,7 +27,7 @@ const crearCreditof = (req, res) => {
     idUsuario,
     descripcion,
     valorCreditof,
-    fecha: getDate()
+    fecha
   };
     // introduccion de datos
   crearcreditofDB(Creditof)
