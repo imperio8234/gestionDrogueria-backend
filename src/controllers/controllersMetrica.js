@@ -144,18 +144,26 @@ const optenerComprasYventas = (req, res) => {
         const tieneAbonos = result.creditos[0]?.abonos !== undefined;
         // Verificar si 'saldoCreditos' existe en result.creditos[0]
         const tieneSaldoCreditos = result.creditos[0]?.saldoCreditos !== undefined;
+     // console.log(compraTV[0].valor, comprasf[0].valor, abonoC[0].valor, abonoCom[0].valor, creditof[0].valor, comprasSinPagar[0].valor, compras[0].compras_totales, ventas, gastos[0].valor_gasto, creditos[0].valor  )
+
+        const comprasTotalesV = parseInt(result.comprasTotalesV[0].valor);
+        const creditosf = parseInt(result.creditof[0].valor);
+        const comprasNoPagas = parseInt(result.comprasNoPagas[0].valor);
+        const abonoC = parseInt(result.abonoC[0].valor);
+        const abonoCom = parseInt(result.abonoCom[0].valor);
+
         res.status(200).json({
           message: "exito",
           success: true,
           data: [
             {
-              compras_sin_pagar: parseInt(result.comprasSinPagar[0].valor),
-              compras_totales: result.compras[0].compras_totales,
+              compras_sin_pagar: (parseInt(result.comprasSinPagar[0].valor) + comprasNoPagas) - abonoCom,
+              compras_totales: parseInt(result.compras[0].compras_totales) + comprasTotalesV,
               total_venta: result.ventas[0].total_venta,
               total_ganancia: result.ventas[0].total_ganancia,
               valor_gasto: result.gastos[0].valor_gasto,
-              deuda_creditos: tieneSaldoCreditos ? result.creditos[0].saldoCreditos : 0,
-              creditos_pagos: tieneAbonos ? result.creditos[0].abonos : 0
+              deuda_creditos:  (parseInt(result.creditos[0].valor) + creditosf) - abonoC,
+              creditos_pagos:  abonoC
             }
           ]
         });
