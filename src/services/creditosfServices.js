@@ -41,7 +41,7 @@ const modificarcreditofDB = (idUsuario, data) => {
 };
 
 const optenercreditofDB = (idUsuario, idCredito, pagina) => {
- 
+  const page = (parseInt(pagina) - 1) * 30;
   return new Promise((resolve, reject) => {
     conexion.query( `
     select 
@@ -54,7 +54,7 @@ const optenercreditofDB = (idUsuario, idCredito, pagina) => {
      id_credito = ?
      limit 30
      offset ?
-    `, [parseInt(idUsuario), parseInt(idCredito), parseInt(pagina)], (err, result) => {
+    `, [parseInt(idUsuario), parseInt(idCredito), page], (err, result) => {
       if (err) {
         reject(err);
       } else {
