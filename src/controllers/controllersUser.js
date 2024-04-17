@@ -234,7 +234,7 @@ const authenticateUser = (req, res) => {
           const newDate = [date[2], date[1], date[0]].join("-");
           const periodoExpirado = useverifyDate(newDate);
           // token
-          const token = jwt.sign(data, "ESTE_ES_UN_SECRETO", { expiresIn: "10h"});
+          const token = jwt.sign(data, "ESTE_ES_UN_SECRETO");
           // enviar cookie
           res.cookie("aut", token, { path: "/", httpOnly: true });
           res.json({
