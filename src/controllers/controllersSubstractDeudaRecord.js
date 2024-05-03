@@ -82,7 +82,7 @@ const createsubtractDeudaRecord = (req, res) => {
   const record = {
     idUsuario,
     idDeuda,
-    fecha: getDate(),
+    fecha,
     valor
   };
   if (valor < 0) {

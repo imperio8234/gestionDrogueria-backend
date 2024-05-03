@@ -5,7 +5,7 @@ const random = require("../toolsDev/random");
 
 const crearcajaDiaria = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { efectivoInicial } = req.body;
+  const { efectivoInicial, fecha } = req.body;
 
   // verificacion de datos
   if (!efectivoInicial) {
@@ -25,7 +25,7 @@ const crearcajaDiaria = (req, res) => {
     idcajaDiaria: random(1000, 9000),
     idUsuario,
     efectivoInicial,
-    fecha: getDate()
+    fecha
   };
     // introduccion de datos
   crearcajaDiariaDB(cajaDiaria)

@@ -81,7 +81,7 @@ const createsubtractCreditRecord = (req, res) => {
   const { idCredito, fecha, valor } = req.body;
   const record = {
     idCredito,
-    fecha: getDate(),
+    fecha,
     valor
   };
 

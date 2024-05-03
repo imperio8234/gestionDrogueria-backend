@@ -234,7 +234,17 @@ const authenticateUser = (req, res) => {
           const newDate = [date[2], date[1], date[0]].join("-");
           const periodoExpirado = useverifyDate(newDate);
           // token
-          const token = jwt.sign(data, "ESTE_ES_UN_SECRETO");
+          const fechaActual = new Date();
+
+          // Definir la fecha y hora de expiración (1 año después)
+          const fechaExpiracion = new Date(fechaActual);
+          fechaExpiracion.setFullYear(fechaActual.getFullYear() + 1);
+          
+          // Genera el token con la fecha de expiración
+          const token = jwt.sign({
+            exp: Math.floor(fechaExpiracion.getTime() / 1000), // La expiración se debe expresar en segundos
+            ...data,
+          }, 'ESTE_ES_UN_SECRETO');
           // enviar cookie
           res.cookie("aut", token, { path: "/", httpOnly: true });
           res.json({

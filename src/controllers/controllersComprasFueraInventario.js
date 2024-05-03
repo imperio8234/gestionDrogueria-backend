@@ -5,7 +5,7 @@ const random = require("../toolsDev/random");
 
 const crearCompraf = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
-  const { descripcion, valorCompraf, idDeuda, metodoPago, procedencia } = req.body;
+  const { descripcion, valorCompraf, idDeuda, metodoPago, procedencia, fecha } = req.body;
 
   // verificacion de datos
   if (!descripcion || !valorCompraf) {
@@ -29,7 +29,7 @@ const crearCompraf = (req, res) => {
     valorCompraf,
     metodoPago, 
     procedencia,
-    fecha: getDate()
+    fecha
   };
     // introduccion de datos
   crearComprafDB(compraf)
