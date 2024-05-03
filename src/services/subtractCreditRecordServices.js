@@ -43,6 +43,7 @@ const deletesubtractCreditRecordDB = (id) => {
 };
 const createsubtractCreditRecordDB = (record, idUsuario) => {
   const { fecha, valor, idCredito } = record;
+  const fechaFormat = fecha.split("-").reverse().join("/");
   const valor2 = parseInt(valor)
   return new Promise((resolve, reject) => {
     conexion.query("select valor from suma_credito where id_credito=? and id_usuario = ?", [idCredito, idUsuario], (err, valoresCredito) => {
@@ -75,7 +76,7 @@ const createsubtractCreditRecordDB = (record, idUsuario) => {
             } else if (valor2 > (creditosf + totales1)) {
               resolve({ success: false, message: "su abono excede el credito" });
             } else {
-              conexion.query("INSERT INTO abonos_credito SET ?", [{ fecha, valor:valor2, id_credito: idCredito, id_usuario: idUsuario }], (err, row) => {
+              conexion.query("INSERT INTO abonos_credito SET ?", [{ fecha: fechaFormat, valor:valor2, id_credito: idCredito, id_usuario: idUsuario }], (err, row) => {
                 if (err) {
                   reject(err.message);
                 } else {

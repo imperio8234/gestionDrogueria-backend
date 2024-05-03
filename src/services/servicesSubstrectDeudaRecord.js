@@ -43,6 +43,8 @@ const deletesubtractDeudaRecordDB = (id) => {
 };
 const createsubtractDeudaRecordDB = (record) => {
   const { fecha, valor, idDeuda, idUsuario } = record;
+  const fechaFormat = fecha.split("-").reverse().join("/");
+
   return new Promise((resolve, reject) => {
     conexion.query(`
     (
@@ -75,7 +77,7 @@ const createsubtractDeudaRecordDB = (record) => {
           if (parseInt(valor) > (parseInt(valores[0].totalAbonos)+ valorCompraf)) {
             resolve({ success: false, message: `el valor excede la deuda` });
           } else {
-            conexion.query("INSERT INTO abonos SET ?", [{ fecha, valor, id_deuda: idDeuda, id_usuario: idUsuario }], (err, row) => {
+            conexion.query("INSERT INTO abonos SET ?", [{ fecha: fechaFormat, valor, id_deuda: idDeuda, id_usuario: idUsuario }], (err, row) => {
               if (err) {
                 reject(err.message);
               } else {

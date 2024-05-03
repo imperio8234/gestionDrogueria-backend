@@ -1,9 +1,11 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 const crearGastosDB = (gasto) => {
   const { idGasto, idUsuario, descripcion, valorGasto, categoria, fecha } = gasto;
+  const fechaFormat = fecha.split("-").reverse().join("/");
+
   return new Promise((resolve, reject) => {
     conexion.query("insert into gastos (id_gasto, id_usuario, descripcion, valor_gasto, fecha, categoria) VALUES (?,?,?,?,?,?)",
-      [idGasto, idUsuario, descripcion, valorGasto, fecha, categoria], (err, result) => {
+      [idGasto, idUsuario, descripcion, valorGasto, fechaFormat, categoria], (err, result) => {
         if (err) {
           reject(err);
         } else {
