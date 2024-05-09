@@ -1,6 +1,7 @@
 const conexion = require("../toolsDev/midelware/bd_conection");
 const crearcajaDiariaDB = (caja) => {
   const { idCajaDiaria, idUsuario, efectivoInicial, fecha, } = caja;
+  const fechaFormat = fecha.split("-").reverse().join("/");
   return new Promise((resolve, reject) => {
     conexion.query(`
     select 
@@ -13,7 +14,7 @@ const crearcajaDiariaDB = (caja) => {
      fecha = ?
     
 
-    `, [idUsuario, fecha], (err, result) => {
+    `, [idUsuario, fechaFormat], (err, result) => {
       if (err) {
         reject(err);
         return;
@@ -22,7 +23,7 @@ const crearcajaDiariaDB = (caja) => {
        resolve({success:false})
      } else {
       conexion.query("insert into cajaDiaria (id_caja, id_usuario, efectivoInicial, fecha) VALUES (?,?,?,?)",
-      [idCajaDiaria, idUsuario, efectivoInicial, fecha], (err, result) => {
+      [idCajaDiaria, idUsuario, efectivoInicial, fechaFormat], (err, result) => {
         if (err) {
           reject(err);
         } else {
