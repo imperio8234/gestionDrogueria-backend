@@ -2,10 +2,15 @@
 const Express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+
+
+
+// Carga las variables de entorno desde el archivo correspondiente
+require('dotenv').config();
 // VARIABLES DE ENTORNO
-const DB_PORT = process.env.DB_PORT || 2000;
+const DB_PORT = process.env.PORT;
 const corsOptions = {
-  origin: "https://villacontrol.xyz", 
+  origin: "http://localhost:5173", 
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 };
