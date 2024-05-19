@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const verify = (req, res, next) => {
+  
   // const token = req.headers.authorization;
   const token = "Bearer" + " " + req.cookies.aut;
   if (!token) {
@@ -17,6 +18,7 @@ const verify = (req, res, next) => {
     if (err) {
       return res.status(401).json({ mensaje: "vuelve a iniciar sesion" });
     }
+  
     req.usuario = decode;
     next();
   });
