@@ -1,3 +1,4 @@
+const getDate = require("../toolsDev/getDate");
 const conexion = require("../toolsDev/midelware/bd_conection");
 const { creditosf, comprasTotsales, abonosCredito, abonosCompras, comprasfSinPagar } = require("./queryBdMetricas");
 const getProductosMetricaDB = (idUsuario) => {
@@ -243,37 +244,134 @@ const optenerComprasYventasDB = (idUsuario, fecha) => {
 };
 
 const exportarDB = (fecha, idUsuario) => {
-  return new Promise((resolve, reject) => {
+  const fechasSinDuplicados = getDate(fecha);
+ return new Promise((resolve, reject) => {
     conexion.query(`
     select 
-   p.producto, 
-   p.cantidad, 
-   p.laboratorio, 
-   p.porcentageIva IVA, 
-   p.valor_total valorProductos, 
-   p.valor precio, 
-   p.costo_un costo
-  from 
-    productos_vendidos p
-      left join ventas v on v.id_venta = p.id_venta
-      where v.fecha = ? and v.id_usuario = ?
-    `, [fecha, idUsuario], (err, res) => {
+     sum(valor_gasto) totalGastos
+    from 
+     gastos 
+    where 
+      id_usuario = ? 
+     and 
+      fecha =?;
+    `, [idUsuario, fechasSinDuplicados], (err, gastos) => {
       if (err) {
         reject(err);
+        return;
       }
-
-      // peticion de gastos
+      
       conexion.query(`
-      select categoria, (sum(valor_gasto)) valor from gastos
-        where fecha = ? and id_usuario = ?
-        group by categoria
-      `, [fecha, idUsuario], (err, gasto) => {
+      select
+        sum(valor) valorCompras
+     from
+       compras_fuera_inventario
+     where 
+      id_usuario = ?
+    and
+      fecha =? 
+    and 
+      metodo_pago = "pago de contado"
+    and 
+     procedencia = "caja"     
+      `, [idUsuario, fechasSinDuplicados], (err, compras) => {
         if (err) {
-          reject(err);
+          reject(err)
+          return;
         }
-        resolve({ ventas: res, gastos: gasto });
-      });
-    });
+        conexion.query(`
+        select 
+         sum(valor) valorCreditosF
+        from 
+         creditosf
+        where
+         id_usuario = ?
+        and
+         fecha =?
+        `, [idUsuario, fechasSinDuplicados], (err, creditosf) => {
+          if(err){
+            reject(err)
+            return;
+          }
+          conexion.query(`
+           select 
+            sum(valor) valorAbonosCredito
+           from 
+            abonos_credito
+          where
+          fecha =?
+           and 
+           id_usuario = ?
+
+          `, [fechasSinDuplicados, idUsuario], (err, abonosCredito) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            conexion.query(`
+            select
+             sum(valor) valorAbonos
+            from 
+             abonos
+            where
+             id_usuario = ?
+            and
+             fecha =?;
+
+            `, [idUsuario, fechasSinDuplicados], (err, abonosCompras) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              
+             conexion.query(`
+             select 
+              * 
+             from 
+              ventas
+             where 
+              id_usuario = ?
+             and 
+              fecha = ?
+               
+             `, [idUsuario, fechasSinDuplicados], (err, ventas) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+             conexion.query(`
+              select 
+                efectivoInicial,
+                efectivoCierre
+              from 
+                cajadiaria
+              where
+                id_usuario = ?
+              and 
+                fecha = ?;
+             `, [idUsuario, fechasSinDuplicados], (err, cajas) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              resolve({
+                success:true,
+                ventas: ventas,
+                compras: compras[0],
+                gastos:gastos[0], 
+                creditosf: creditosf[0], 
+                abonosCompras:abonosCompras[0], 
+                abonosCredito: abonosCredito[0],
+                cajas
+              })
+             })
+             })
+            })
+          })
+        })
+      })
+    } )
+  
   });
 };
 module.exports = {
@@ -287,98 +385,99 @@ module.exports = {
 };
 
 /**
- *
- *   SELECT
+ *  conexion.query(`
+      select 
+       *
+      from 
+       gastos 
+      where 
+        id_usuario = ? 
+       and 
+        fecha in(?);
+      `, [idUsuario, fechasSinDuplicados], (err, gastos) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        
+        conexion.query(`
+        select
+          * 
+       from
+         compras_fuera_inventario
+       where 
+        id_usuario = ?
+      and
+        fecha in(?) 
+      and 
+        metodo_pago = "pago de contado"
+      and 
+       procedencia = "caja"     
+        `, [idUsuario, fechasSinDuplicados], (err, compras) => {
+          if (err) {
+            reject(err)
+            return;
+          }
+          conexion.query(`
+          select 
+           * 
+          from 
+           creditosf
+          where
+           id_usuario = ?
+          and
+           fecha in(?) 
+          `, [idUsuario, fechasSinDuplicados], (err, creditosf) => {
+            if(err){
+              reject(err)
+              return;
+            }
+            conexion.query(`
+             select 
+              fecha,
+              valor
+             from 
+              abonos_credito
+            where
+            fecha in(?)
+             and 
+             id_usuario = ?
 
-  IFNULL(ph2.compras_sin_pagar, 0) AS compras_sin_pagar,
-  IFNULL(ph.compras_totales, 0) AS compras_totales,
-  IFNULL(SUM(v.total_venta), 0) AS total_venta,
-  IFNULL(pv.total_ganancia, 0) AS total_ganancia,
-  IFNULL(g.valor_gasto, 0) AS valor_gasto,
-  IFNULL(dc.deuda_creditos, 0) AS deuda_creditos,
-  IFNULL(dc.creditos_pagos, 0) AS creditos_pagos
+            `, [fechasSinDuplicados, idUsuario], (err, abonosCredito) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              conexion.query(`
+              select
+               fecha,
+               valor
+              from 
+               abonos
+              where
+               id_usuario = ?
+              and
+               fecha in(?);
 
-FROM
-ventas v,
-(
-select
-   sum((costo * unidades)) compras_totales
-from
-   productos_historial
-where
-   id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-   and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
-) ph,
- (
-  SELECT
-         SUM(((pv.valor - pv.costo_un) * pv.cantidad)) AS total_ganancia
-     FROM
-         productos_vendidos pv
-         left join ventas v on v.id_venta = pv.id_venta
-     WHERE
-         pv.id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-         and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
- ) AS pv,
- (
-     SELECT
-         SUM(valor_gasto) AS valor_gasto
-     FROM
-         gastos
-     WHERE
-         id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-         and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
- ) AS g,
- (
-     SELECT
-         SUM(ac.valor) AS creditos_pagos,
-         (SUM(ac.valor) - (
-             SELECT
-                 SUM(valor)
-             FROM
-                 suma_credito
-             WHERE
-                 id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-                 and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
-         )) AS deuda_creditos
-     FROM
-         abonos_credito ac
-     WHERE
-         ac.id_credito IN (
-             SELECT
-                 id_credito
-             FROM
-                 creditos
-             WHERE
-                 id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-                 and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
-         )
- ) AS dc,
- (select
-  (IFNULL((select sum(valor) from abonos where id_usuario = ? and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-  and
-   STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
-  ), 0) - sum((costo * unidades)) ) compras_sin_pagar
-from
-   productos_historial
-where
-   id_usuario = ? and metodo_pago = "compra a credito" and  date_format(STR_TO_DATE(fecha, '%d/%m/%y'), '%m') in (${mes})
-   and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
-) ph2
-
-WHERE
-v.id_usuario = ? and  date_format(STR_TO_DATE(v.fecha, '%d/%m/%y'), '%m') in (${mes})
-and
-STR_TO_DATE(fecha, '%d/%m/%Y') BETWEEN '${año}-01-01' AND '${año}-12-31'
-GROUP BY
- total_ganancia,
- valor_gasto,
- deuda_creditos,
- compras_sin_pagar,
- compras_totales;
+              `, [idUsuario, fechasSinDuplicados], (err, abonosCompras) => {
+                if (err) {
+                  reject(err);
+                  return;
+                }
+                
+                resolve({
+                  success:true,
+                  cajas: cajas.length <= 0 ? [{fecha:""}]:cajas,
+                  compras: compras.length <= 0?[{fecha:"",valor:0}]:compras,
+                  gastos: gastos.length <= 0? [{fecha:"", valor_gasto:0}]:gastos, 
+                  creditosf: creditosf.length <= 0 ? [{fecha:"", valor:0}]: creditosf, 
+                  abonosCompras: abonosCompras.length <= 0?[{fecha:"", svalor:0}]:abonosCompras, 
+                  abonosCredito: abonosCredito.length <= 0?[{fecha: "", valor:0}]:abonosCredito
+                })
+              })
+            })
+            
+          })
+        })
+      } )
  */

@@ -34,10 +34,9 @@ const GetAllsubtractDeudaRecord = (req, res) => {
     });
 };
 const updatesubtractDeudaRecord = (req, res) => {
-  const { fecha, idRecord, valor } = req.body;
+  const {  idAbono, valor } = req.body;
   const updateRecord = {
-    fecha: getDate(),
-    idRecord,
+    idAbono,
     valor
   };
   updatesubtractDeudaRecordDB(updateRecord)

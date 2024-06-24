@@ -1,5 +1,6 @@
 const { getProductosMetricaDB, getcreditosMetricaDB, getdeudasMetricaDB, optenerComprasYventasDB, exportarDB } = require("../services/metricaServices");
 const exelJs = require("exceljs");
+const CrearExel = require("../toolsDev/crearExel");
 const getProductosMetrica = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   getProductosMetricaDB(idUsuario)
@@ -179,117 +180,27 @@ const optenerComprasYventas = (req, res) => {
       }
     });
 };
-
-// eslint-disable-next-line no-return-assign
+// creacion de exel 
+// eslint-disable-next-line no-return-assig
 const exportar = (req, res) => {
   const idUsuario = req.usuario.id_usuario;
   const fecha = req.params.fecha.split("-").reverse().join("/");
   exportarDB(fecha, idUsuario)
     .then(result => {
-      if (result.gastos.length < 0 || result.ventas.length < 0) {
+      if (!result.success) {
         res.status(404).json({
           message: "sin registros",
           success: false
         });
       } else {
-        // recoleccion de headers de los distintos cuadros
-        // eslint-disable-next-line no-return-assign
-        const headers = result.ventas.reduce((acc, obj) => acc = Object.getOwnPropertyNames(obj), []);
-        // eslint-disable-next-line no-return-assign
-        const gastos = result.gastos.reduce((acc, obj) => acc = Object.getOwnPropertyNames(obj), []);
-
+        console.log(result)
+         //variables que crean el libro y la hoja de exel
         // envio y modificacion del exel
-        const exporData = (data) => {
-          const workBook = new exelJs.Workbook();
-          const workSheet = workBook.addWorksheet("worksheet");
-          // informacion de comprobante
-          workSheet.getCell("A1").value = req.usuario.nombreNegocio;
-          workSheet.getCell("A2").value = `fecha de comprobante : ${new Date().toLocaleString()}`;
-          workSheet.mergeCells("A1:J1");
-          workSheet.mergeCells("A2:J2");
-
-          // columna de fecha del cierre de venta
-          workSheet.getCell("A4").value = "Fecha del cierre diario";
-          workSheet.getCell("A5").value = fecha;
-          workSheet.mergeCells("A4:C4");
-          workSheet.mergeCells("A5:C5");
-
-          // productos vendidos encabezados
-          workSheet.spliceRows(8, 0, headers);
-
-          // insercion de gastos
-          /* result.gastos.forEach((dato, index) => {
-            const rowIndex = index + 11;
-            const row = workSheet.getCell(`J${rowIndex}`)
-            row.value = dato;
-          }) */
-
-          // insercion de prodctos vendidos
-          result.ventas.forEach((dato, index) => {
-            const rowIndex = index + 9; // Comenzar desde la fila 9
-            workSheet.addRow([dato.producto, dato.cantidad, dato.laboratorio, dato.IVA, dato.valorProductos, dato.precio, dato.costo], `A${rowIndex}`);
-          });
-
-          // ESTILO  DE CELDAS
-          const Style = {
-            border: {
-            },
-            fill: {
-              type: "pattern",
-              pattern: "solid",
-              fgColor: { argb: "FFD3D3D3" } // Código de color gris claro en formato ARGB
-            },
-            alignment: {
-              vertical: "middle", // Centrar verticalmente
-              horizontal: "center" // Centrar horizontalmente
-            }
-          };
-          const Style2 = {
-            border: {
-            },
-            fill: {
-              type: "pattern",
-              pattern: "solid",
-              fgColor: { argb: "FFFFFFFF" }
-            },
-            alignment: {
-              vertical: "middle", // Centrar verticalmente
-              horizontal: "center" // Centrar horizontalmente
-            }
-          };
-          workSheet.columns.forEach(columna => {
-            columna.width = 20;
-          });
-
-          // gastos encabezados
-          gastos.forEach((dato, index) => {
-            const rowIndex = index + 9;
-            const row = workSheet.getCell(`I${rowIndex}`);
-            row.value = dato;
-            row.style = Style;
-          });
-
-          // optencion de celdas para dar estilos
-          const informacionComprobante = workSheet.getCell("A1");
-          const informacionComprobante2 = workSheet.getCell("A2");
-          const fechaDia = workSheet.getCell("A4");
-          const fechaDia2 = workSheet.getCell("A5");
-          workSheet.getCell("A8").style = Style;
-          workSheet.getCell("B8").style = Style;
-          workSheet.getCell("C8").style = Style;
-          workSheet.getCell("D8").style = Style;
-          workSheet.getCell("E8").style = Style;
-          workSheet.getCell("F8").style = Style;
-          workSheet.getCell("G8").style = Style;
-          informacionComprobante.style = Style;
-          informacionComprobante2.style = Style;
-          fechaDia.style = Style;
-          fechaDia2.style = Style2;
-
-          return workBook;
-        };
+        const workBook = new exelJs.Workbook();
+        const workSheet = workBook.addWorksheet("worksheet");
+       
         // retornar el libro exel
-        const workBook = exporData();
+        const createWorkBook = CrearExel(workBook, workSheet, result, fecha);
         res.setHeader(
           "Content-type",
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -299,12 +210,13 @@ const exportar = (req, res) => {
           "attachment; filename =" + "data.xlsx"
         );
 
-        return workBook.xlsx.write(res).then(() => {
+        return createWorkBook.xlsx.write(res).then(() => {
           res.status(200).end();
         });
       }
     })
     .catch((err) => {
+      console.log(err)
       res.status(500).json({
         success: false,
         err,

@@ -18,9 +18,10 @@ const GetAllsubtractDeudaRecordDB = (id, idUsuario, pagina) => {
   });
 };
 const updatesubtractDeudaRecordDB = (data) => {
-  const { fecha, valor, idRecord } = data;
+  const {valor, idAbono } = data;
+  
   return new Promise((resolve, reject) => {
-    conexion.query("UPDATE abonos SET fecha =?, valor =? WHERE id_abono=?", [fecha, valor, idRecord], (err, row) => {
+    conexion.query("UPDATE abonos SET  valor =? WHERE id_abono=?", [ valor, idAbono], (err, row) => {
       if (err) {
         reject(err);
       } else {

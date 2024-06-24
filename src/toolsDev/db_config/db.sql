@@ -234,5 +234,35 @@ CREATE TABLE creditosf (
     valor BIGINT NOT NULL,
     descripcion VARCHAR(300) NOT NULL,
     fecha VARCHAR(200) NOT NULL,
-    CONSTRAINT fk_comprasf FOREIGN KEY (id_credito) REFERENCES creditos(id_credito) ON DELETE CASCADE
+    CONSTRAINT fk_comprasf 
+    FOREIGN KEY (id_credito) 
+    REFERENCES creditos(id_credito) 
+    ON DELETE CASCADE
 );
+
+CREATE TABLE devolucion (
+    id_usuario BIGINT NOT NULL,
+    id_devolucion BIGINT NOT NULL AUTO_INCREMENT,
+    valor BIGINT,
+    motivoDevolucion VARCHAR(1000),
+    fecha VARCHAR(100),
+    nombre VARCHAR(100),
+    CONSTRAINT fk_devolucion 
+    FOREIGN KEY (id_usuario)
+    REFERENCES administrador(id_usuario)
+    ON DELETE CASCADE
+)
+
+CREATE TABLE productosDevueltos (
+    id_producto BIGINT NOT NULL,
+    id_devolucion BIGINT NOT NULL,
+    nombre VARCHAR(200) NOT null,
+    unidades BIGINT NOT NULL,
+    precio BIGINT NOT NULL,
+    estadoProducto VARCHAR(500) NOT null,
+    FOREIGN KEY (id_devolucion)
+    REFERENCES devolucion(id_devolucion)
+    ON DELETE CASCADE
+
+
+)

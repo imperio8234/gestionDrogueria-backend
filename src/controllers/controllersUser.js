@@ -246,7 +246,13 @@ const authenticateUser = (req, res) => {
             ...data,
           }, 'ESTE_ES_UN_SECRETO');
           // enviar cookie
-          res.cookie("aut", token, { path: "/", httpOnly: true });
+          res.cookie("aut", token, { 
+            path: "/", // Ruta de la cookie
+            httpOnly: true, // La cookie solo será accesible desde el servidor
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 días en milisegundos (cookie persistente)
+            secure: true // La cookie solo se enviará a través de conexiones HTTPS
+          });
+        
           res.json({
             success: true,
             message: "ingreso exitoso",
