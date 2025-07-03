@@ -8,7 +8,7 @@ CREATE TABLE administrador(
     nit BIGINT,
     direccion VARCHAR(400), 
     celular VARCHAR(250) NOT NULL,
-    contraseña VARCHAR(250) NOT NULL,
+    contrasena VARCHAR(250) NOT NULL,
     activo BOOLEAN DEFAULT FALSE,
     fecha VARCHAR(500),
     clave INT,
@@ -251,7 +251,7 @@ CREATE TABLE devolucion (
     FOREIGN KEY (id_usuario)
     REFERENCES administrador(id_usuario)
     ON DELETE CASCADE
-)
+);
 
 CREATE TABLE productosDevueltos (
     id_producto BIGINT NOT NULL,
@@ -265,4 +265,4 @@ CREATE TABLE productosDevueltos (
     ON DELETE CASCADE
 
 
-)
+);

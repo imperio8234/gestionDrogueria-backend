@@ -59,9 +59,9 @@ const getUser = (req, res) => {
     });
 };
 const createUsers = (req, res) => {
-  const { nombre, correo, celular, contraseña, negocio, nit, direccion } = req.body;
+  const { nombre, correo, celular, contrasena, negocio, nit, direccion } = req.body;
   // contraseña encriptada
-  const pass = bcrypt.hashSync(contraseña, 8);
+  const pass = bcrypt.hashSync(contrasena, 8);
 
   const user = {
     nombre,
@@ -82,7 +82,7 @@ const createUsers = (req, res) => {
       success: false,
       message: "el numero de celular es incorrecto ingresa uno valido"
     });
-  } else if (contraseña.length < 9) {
+  } else if (contrasena.length < 9) {
     res.json({
       success: false,
       message: "tu contraseña debe tener mas de 9 caracteres"
@@ -172,10 +172,10 @@ const deleteUsers = (req, res) => {
 };
 
 const authenticateUser = (req, res) => {
-  const { correo, contraseña } = req.body;
+  const { correo, contrasena } = req.body;
   const user = {
     correo,
-    contraseña
+    contrasena
   };
 
   if (isEmail(correo)) {
@@ -187,7 +187,7 @@ const authenticateUser = (req, res) => {
       return;
     } 
 
-    if (contraseña.length < 9) {
+    if (contrasena.length < 9) {
       res.json({
         message: "tu contraseña debe tener 9 caracteres",
         success: false
@@ -203,7 +203,7 @@ const authenticateUser = (req, res) => {
       })
       return;
     }
-    if (contraseña.length < 9) {
+    if (contrasena.length < 9) {
       res.json({
         message: "tu contraseña debe tener 9 caracteres",
         success: false
@@ -282,12 +282,12 @@ const recoverPassword = (req, res) => {
   const { celular, correo } = req.body;
   const newPass = random(1000000000, 9000000000);
   const pass = newPass.toString();
-  const contraseña = bcrypt.hashSync(pass, 10);
+  const contrasena = bcrypt.hashSync(pass, 10);
 
   const data = {
     celular,
     correo,
-    contraseña
+    contrasena
   };
   recoverPasswordDB(data)
     .then(result => {
@@ -315,8 +315,8 @@ const cambiarContraseña = (req, res) => {
   const {newPass, currentPass} = req.body;
   const idUsuario = req.usuario.id_usuario
   const pasToString = newPass.toString()
-  const contraseña = bcrypt.hashSync(pasToString, 10);
-  cambiarContraseñaDB(contraseña, currentPass, idUsuario)
+  const contrasena = bcrypt.hashSync(pasToString, 10);
+  cambiarContraseñaDB(contrasena, currentPass, idUsuario)
   .then((result) => {
     if (result.success) {
       res.status(200).json({

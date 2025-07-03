@@ -26,7 +26,7 @@ const getUserDB = (idUsuario) => {
         if (result.length <= 0) {
           resolve({ success: false });
         } else {
-          delete result[0].contraseña;
+          delete result[0].contrasena;
           resolve({ success: true, data: result });
         }
       }
@@ -43,8 +43,9 @@ const createUsersDB = (user) => {
         if (!result.length <= 0) {
           resolve({ message: "el usuario ya se encuentra registrado con este correo", success: false });
         } else {
-          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contraseña: pass, inicio, fecha, activo, clave, nombreNegocio: negocio, nit, direccion}], (err, row) => {
+          conexion.query("INSERT INTO administrador SET?", [{ nombre, correo, celular, contrasena: pass, inicio, fecha, activo, clave, nombreNegocio: negocio, nit, direccion}], (err, row) => {
             if (err) {
+              console.log("error", err)
               reject(err);
             } else {
               resolve({ message: "usuario registrado", row: row.affectedRows, success: true });
@@ -80,7 +81,7 @@ const deleteUsersDB = (id) => {
 };
 
 const authenticateUserDB = (user) => {
-  const { correo, contraseña } = user;
+  const { correo, contrasena } = user;
 
   return new Promise((resolve, reject) => {
     conexion.query(
@@ -97,12 +98,12 @@ const authenticateUserDB = (user) => {
         if (result.length <= 0) {
           resolve({ success: false, message: "no esta registrado" });
         } else {
-          const contraseñaHass = result[0].contraseña;
-          const isUser = bcrypt.compareSync(contraseña, contraseñaHass);
+          const contrasenaHass = result[0].contrasena;
+          const isUser = bcrypt.compareSync(contrasena, contrasenaHass);
           if (isUser) {
             resolve({ success: true, data: result });
           } else {
-            resolve({ success: false, message: "contraseña o correo incorrecto" });
+            resolve({ success: false, message: "contrasena o correo incorrecto" });
           }
         }
       }
@@ -111,7 +112,7 @@ const authenticateUserDB = (user) => {
 };
 
 const recoverPasswordDB = (update) => {
-  const { celular, correo, contraseña } = update;
+  const { celular, correo, contrasena } = update;
   return new Promise((resolve, reject) => {
     conexion.query("SELECT * FROM administrador WHERE correo =? AND celular =?", [correo, celular], (err, result) => {
       if (err) {
@@ -120,11 +121,11 @@ const recoverPasswordDB = (update) => {
         if (result.length <= 0) {
           resolve({ message: "escribe un correo y numero de celular que se encuentren registrados", success: false });
         } else {
-          conexion.query("UPDATE administrador SET contraseña=? WHERE correo =?", [contraseña, correo], (err, row) => {
+          conexion.query("UPDATE administrador SET contrasena=? WHERE correo =?", [contrasena, correo], (err, row) => {
             if (err) {
               reject(err);
             } else {
-              resolve({ message: "se actualizo correctamente la contraseña", success: true });
+              resolve({ message: "se actualizo correctamente la contrasena", success: true });
             }
           });
         }
@@ -138,17 +139,17 @@ const cambiarContraseñaDB = (newPass, currentPass, idUsuario) => {
   return new Promise ((resolve, reject) => {
     conexion.query(`
     select 
-     contraseña
+     contrasena
     from
      administrador
     where 
      id_usuario = ?
-    `, [idUsuario], (err, contraseña) => {
+    `, [idUsuario], (err, contrasena) => {
       if (err) {
         reject(err)
         return;
       }
-      const currentPassDb = contraseña[0].contraseña;
+      const currentPassDb = contrasena[0].contrasena;
       const isCurrentPass = bcrypt.compareSync(currentPass,currentPassDb);
       if (!isCurrentPass) {
          resolve({success: false})
@@ -158,7 +159,7 @@ const cambiarContraseñaDB = (newPass, currentPass, idUsuario) => {
       update 
        administrador
       set 
-       contraseña = ?
+       contrasena = ?
       where 
        id_usuario =?
       `, [newPass, idUsuario], (err, result) => {
